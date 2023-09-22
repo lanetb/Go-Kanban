@@ -9,7 +9,7 @@ import (
 )
 
 // DB is a global variable that holds the connection to the database
-func ConnectToDB(){
+func ConnectToDB() *sql.DB{
 	log.Println("Connecting to database...")
 
 	err := godotenv.Load()
@@ -34,4 +34,5 @@ func ConnectToDB(){
     }
 
     log.Println("Successfully connected to PlanetScale!")
+	return db
 }

@@ -18,8 +18,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", h1)
-	
-	ConnectToDB()
+	var db = ConnectToDB()
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
