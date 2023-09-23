@@ -13,12 +13,12 @@ func main() {
 	// in the DefaultServeMux.
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
-		tmpl := template.Must(template.ParseFiles("../Client/HTML/index.html"))
+		tmpl := template.Must(template.ParseFiles("../Client/html/login.html"))
 		tmpl.Execute(w, nil)
 	}
 
 	http.HandleFunc("/", h1)
-	var db = ConnectToDB()
+	//var db = ConnectToDB()
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
