@@ -1,19 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/css/login.css">
-    <title>Document</title>
-</head>
-<body>
+<body id="body">
     <div class="login-container">
         <h1>Darnban</h1>
-        <form>
+        <form hx-post="/login/" hx-target="#body">
             <input type="text" placeholder="Username">
             <input type="password" placeholder="Password">
             <button type="submit">Login</button>
         </form>
+        <button type="submit" hx-post="/swap-reg/" hx-target="#body">Register</button>
     </div>
 </body>
-</html>

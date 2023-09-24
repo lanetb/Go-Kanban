@@ -1,0 +1,13 @@
+<body id="body">
+    <div class="login-container">
+        <h1>Darnban</h1>
+        <form hx-post="/register/">
+            <input type="text" name="username" placeholder="Username">
+            <input type="text" name="email" placeholder="Email">
+            <input type="password" name="password" placeholder="Password">
+            <input type="password" placeholder="Confirm Password">
+            <button type="submit">Register</button>
+        </form>
+        <button type="submit" hx-post="/swap-log/" hx-target="#body">Login</button>
+    </div>
+</body>
