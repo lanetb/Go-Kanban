@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
+
 body{
     margin: 0;
     padding: 0;
@@ -13,29 +15,78 @@ body{
     height: 100vh;
 }
 
+.title{
+    color: white;
+    font-size: 50px;
+    margin-bottom: -20px;
+}
+
+.title span{
+    font-family: 'Dela Gothic One', cursive;
+    color: rgb(0, 255, 38);
+}
+
 .login-container{
     margin:auto;
+    transform: translate(0, 50%);
     width: 400px;
-    height: 400px;
+    height: 450px;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     flex-direction: column;
-    background-color: grey;
+    background-color: rgb(0, 0, 45);
     border-radius: 10px;
     box-shadow: 0 0 30px 0 rgba(0,0,0,0.7);
 }
 
 .login-container h1{
+    font-family: 'Dela Gothic One', cursive;
     display: flex;
     font-size: 37px;
     text-align: left;
 }
 
+.switch-log-reg-text{
+    margin-top: -20px;
+    margin-bottom: 40px;
+    color:white;
+    font-family: sans-serif;
+    font-size: 15px;
+}
+
+.switch-log-reg{
+    color:white;
+    font-family: sans-serif;
+    font-size: 15px;
+    text-decoration: none;
+    border: none;
+    background-color: inherit;
+    cursor: pointer;
+}
+
+.log-reg-btn{
+    margin-top: 20px;
+    width: 200px;
+    height: 30px;
+    border-radius: 7px;
+    background-color: rgb(0, 255, 38);
+    border: none;
+    cursor: pointer;
+}
+
+.log-reg-btn:hover{
+    background-color: rgb(0, 200, 100);
+}
+
+.log-reg-btn:active{
+    background-color: rgb(0, 150, 38);
+}
+
 form {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -44,4 +95,11 @@ form input{
     width: 200px;
     height: 20px;
     border-radius: 7px;
+}
+
+form label{
+    align-self: flex-start;
+    margin-left: 5px;
+    color: white;
+    font-size: 12px;
 }

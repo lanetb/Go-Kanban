@@ -1,13 +1,19 @@
 <body id="body">
     <div class="login-container">
-        <h1>Darnban</h1>
+        <h1 class="title">Darn<span>Ban</span></h1>
         <form hx-post="/register/">
+            <label for="username">Username:</label>
             <input type="text" name="username" placeholder="Username">
+            <label for="email">Email:</label>
             <input type="text" name="email" placeholder="Email">
+            <label for="password">Password:</label>
             <input type="password" name="password" placeholder="Password">
+            <label for="password">Confirm Password:</label>
             <input type="password" placeholder="Confirm Password">
-            <button type="submit">Register</button>
+            <button class="log-reg-btn" type="submit">Register</button>
         </form>
-        <button type="submit" hx-post="/swap-log/" hx-target="#body">Login</button>
+        <p class="switch-log-reg-text">Already have an account? 
+            <button class="switch-log-reg" type="submit" hx-post="/swap-log/" hx-target="#body">Sign in!</button>
+        </p>
     </div>
 </body>

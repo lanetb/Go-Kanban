@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -19,8 +17,8 @@ func main() {
 		tmpl.Execute(w, nil)
 	}
 	h2 := func(w http.ResponseWriter, r *http.Request) {
-		username := r.FormValue("username")
-		fmt.Println(username)
+		RegistraitionAuthHandler(w, r)
+
 	}
 	h3 := func(w http.ResponseWriter, r *http.Request) {
 		tmpl := template.Must(template.ParseFiles("../Client/html/register.html"))

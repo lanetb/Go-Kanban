@@ -3,10 +3,10 @@ package main
 import (
 	"database/sql"
 	"log"
-	"os"
-	"github.com/joho/godotenv"
-	_ "github.com/go-sql-driver/mysql"
 	"net/http"
+	"os"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -59,7 +59,6 @@ func RegistraitionAuthHandler(w http.ResponseWriter, r *http.Request) {
 	// email must be valid email address
 	// if not, redirect to registration page
 
-
 	err := DB.QueryRow("SELECT username FROM users WHERE username=?", username).Scan(&user)
 	switch {
 		case err == sql.ErrNoRows:	
@@ -84,7 +83,7 @@ func RegistraitionAuthHandler(w http.ResponseWriter, r *http.Request) {
 			// Username is taken
 			// Redirect to registration page
 			log.Println("Username taken")
-			http.Redirect(w, r, "/register", http.StatusMovedPermanently)
+			Login(username, password, w, r)
 	}
 }
 
@@ -98,11 +97,15 @@ func LoginHandler(w http.ResponseWriter, r *http.Request){
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	// Check if username is already taken
+	Login(username, password, w, r)
+}
+
+func Login(username string, password string, w http.ResponseWriter, r *http.Request){
 	var user string
 	var pass string
 	err := DB.QueryRow("SELECT username, password FROM users WHERE username=?", username).Scan(&user, &pass)
 	switch {
-		case err == sql.ErrNoRows:	
+		case err == sql.ErrNoRows:
 			// Username is not taken
 			// Redirect to login page
 			http.Redirect(w, r, "/", http.StatusMovedPermanently)
