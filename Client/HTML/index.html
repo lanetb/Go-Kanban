@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Darnban</title>
+    <link rel="stylesheet" href="../static/css/style.css">
     <script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
 </head>
 <body id="body">
-    <div class="login-container">
-        <h1>Darnban</h1>
-        <form hx-post="/login/" hx-target="#body">
-            <input type="text" placeholder="Username">
-            <input type="password" placeholder="Password">
-            <button type="submit">Login</button>
-        </form>
-        <button type="submit" hx-post="/swap-reg/" hx-target="#body">Register</button>
+    <div class="background"></div>
+        <div class="login-container">
+            <h1>Darnban</h1>
+            <form hx-post="/login/" hx-target="#body">
+                <input type="text" placeholder="Username">
+                <input type="password" placeholder="Password">
+                <button type="submit">Login</button>
+            </form>
+            <button type="submit" hx-post="/swap-reg/" hx-target="#body">Register</button>
+        </div>
     </div>
 </body>
 </html>
