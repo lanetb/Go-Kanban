@@ -171,3 +171,18 @@ func GetProjects(){
 	log.Println("Projects retrieved")
 
 }
+
+func CreateProject(w http.ResponseWriter, r *http.Request){
+	r.ParseForm()
+	projectName := r.FormValue("projectName")
+	_, err := db.Exec("INSERT INTO Project (ProjectName, UserID) VALUES (?, ?)", projectName, CurrentUser.ID)
+	if err != nil {
+		log.Println(err)
+	}
+	GetProjects()
+	tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
+	err = tmpl.Execute(w, CurrentUser)
+	if err != nil {
+		log.Println(err)
+	}
+}
