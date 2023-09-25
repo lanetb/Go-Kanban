@@ -164,3 +164,7 @@ form label{
     background-color: rgb(7, 7, 100);
     cursor: pointer;
 }
+
+.project:active{
+    background-color: rgb(7, 7, 150);
+}
