@@ -7,8 +7,10 @@
         </div>
     </div>
     <div class="project-board">
-        <h1>Dashboard</h1>
-        <p>Username: {{.Username}}</p>
-        <p>Projects:</p>
+        {{range .Projects}}
+        <div class="project">
+            <h2>{{.Name}}</h2>
+        </div>
+        {{end}}
     </div>
 </body>

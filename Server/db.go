@@ -7,7 +7,6 @@ import (
 	"os"
 	"unicode"
 	"html/template"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
@@ -19,8 +18,9 @@ type User struct{
 }
 var CurrentUser User
 type Project struct{
-	Name string
 	ID int
+	UserID int
+	Name string
 	LastUpdated string
 }
 
@@ -40,9 +40,10 @@ func ConnectToDB(){
         log.Fatalf("failed to connect: %v", err)
     }
 
-    if err :=    db.Ping(); err != nil {
+    if err := db.Ping(); err != nil {
         log.Fatalf("failed to ping: %v", err)
     }
+
     log.Println("Successfully connected to PlanetScale!")
 }
 
@@ -146,7 +147,15 @@ func Login(username string, password string, w http.ResponseWriter, r *http.Requ
 				}
 				GetProjects()
 				tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
-				err = tmpl.Execute(w, CurrentUser)
+				log.Println("Projects: ", Projects)
+				data := struct{
+					User User
+					Projects []Project
+				}{
+					User: CurrentUser,
+					Projects: Projects,
+				}
+				err = tmpl.Execute(w, data)
 				if err != nil {
 					log.Println(err)
 				}
@@ -162,14 +171,13 @@ func GetProjects(){
 	}
 	for rows.Next(){
 		var project Project
-		err := rows.Scan(&project.Name, &project.ID, &project.LastUpdated)
+		err := rows.Scan(&project.ID, &project.UserID, &project.Name, &project.LastUpdated)
 		if err != nil {
 			log.Println(err)
 		}
 		Projects = append(Projects, project)
 	}
 	log.Println("Projects retrieved")
-
 }
 
 func CreateProject(w http.ResponseWriter, r *http.Request){
