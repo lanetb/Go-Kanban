@@ -5,123 +5,160 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"unicode"
+	"html/template"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var DB *sql.DB
-
-// DB is a global variable that holds the connection to the database
+var db *sql.DB
+type User struct{
+	Username string
+	ID int
+}
+var CurrentUser User
+//    db is a global variable that holds the connection to the database
 func ConnectToDB(){
 	log.Println("Connecting to database...")
-
 	err := godotenv.Load()
+
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	DB, err := sql.Open("mysql", os.Getenv("DSN"))
+    db, err = sql.Open("mysql", os.Getenv("DSN"))
 
     if err != nil {
-
         log.Fatalf("failed to connect: %v", err)
-
     }
 
-    defer DB.Close()
-
-    if err := DB.Ping(); err != nil {
-
+    if err :=    db.Ping(); err != nil {
         log.Fatalf("failed to ping: %v", err)
-
     }
-
     log.Println("Successfully connected to PlanetScale!")
 }
 
 func RegistraitionAuthHandler(w http.ResponseWriter, r *http.Request) {
-	// ParseForm parses the raw query from the URL and updates r.Form.
-	// For POST requests, it also parses the request body as a form and puts the results into both r.PostForm and r.Form.
 	r.ParseForm()
-	// FormValue returns the first value for the named component of the query.
-	// POST and PUT body parameters take precedence over URL query string values.
-	// FormValue calls ParseMultipartForm and ParseForm if necessary and ignores any errors returned by these functions.
+	log.Println(db)
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	email := r.FormValue("email")
-	// Check if username is already taken
 	var user string
-	// check if password, email and username are valid
-	// username must be 4 or more characters and consitst of only letters and numbers
-	// password must be 8 or more characters and consist of letters, numbers and special characters (e.g. !@#$%^&*)'
-	// password must contain at least one uppercase letter, one lowercase letter, one number and one special character
-	// email must be valid email address
-	// if not, redirect to registration page
 
-	err := DB.QueryRow("SELECT username FROM users WHERE username=?", username).Scan(&user)
+	var usernameValid bool = true
+	log.Println("here 1")
+	for _, char := range username {
+		if !unicode.IsLetter(char) && !unicode.IsNumber(char) {
+			usernameValid = false
+		}
+	}
+	log.Println("here 2")
+	var usernameLength bool = true
+	if len(username) <= 3 || len(username) >= 30 {
+		usernameLength = false
+	}
+	log.Println("here 3")
+	var passLower, passUpper, passNumber, passSpecial, passLength, passNoSpace bool = false, false, false, false, false, true
+	for _, char := range password {
+		switch{
+			case unicode.IsLower(char):
+				passLower = true
+			case unicode.IsUpper(char):
+				passUpper = true
+			case unicode.IsNumber(char):
+				passNumber = true
+			case unicode.IsPunct(char) || unicode.IsSymbol(char):
+				passSpecial = true
+			case unicode.IsSpace(char):
+				passNoSpace = false
+		}
+	}
+	if len(password) >= 8 && len(password) <= 50 {
+		passLength = true
+	}
+	log.Println("here 4")
+	err := db.QueryRow("SELECT username FROM User WHERE username=?", username).Scan(&user)
+	log.Println("here 5")
 	switch {
-		case err == sql.ErrNoRows:	
-			// Username is not taken
-			// Insert user into database
-			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-			if err != nil {
-				log.Panic(err)
+		case err == sql.ErrNoRows:
+			log.Println("username: ", username)
+			log.Println("password: ", password)
+			log.Println("email: ", email)
+			log.Println("usernameValid: ", usernameValid)
+			log.Println("usernameLength: ", usernameLength)
+			log.Println("passLower: ", passLower)
+			log.Println("passUpper: ", passUpper)
+			log.Println("passNumber: ", passNumber)
+			log.Println("passSpecial: ", passSpecial)
+			log.Println("passLength: ", passLength)
+			log.Println("passNoSpace: ", passNoSpace)
+			if usernameValid && usernameLength && passLower && passUpper  && passNumber && passSpecial && passLength && passNoSpace {
+				hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+				if err != nil {
+					log.Println(err)
+				}
+				password = string(hashedPassword)
+				log.Println("hash: ", password)
+				_, err = db.Exec("INSERT INTO User (username, password, email) VALUES (?, ?, ?)", username, password, email)
+				if err != nil {
+					log.Println(err)
+				}
+				log.Println("User created")
+				//Login(username, password, w, r)
+			} else {
+				log.Println("Password invalid")
 			}
-			password = string(hashedPassword)
-			
-			_, err = DB.Exec("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", username, password, email)
-			if err != nil {
-				log.Println(err)
-			}
-			// Redirect to login page
-			log.Println("User created")
-			http.Redirect(w, r, "/", http.StatusMovedPermanently)
 		case err != nil:
 			log.Println(err)
 		default:
-			// Username is taken
-			// Redirect to registration page
 			log.Println("Username taken")
 			Login(username, password, w, r)
 	}
+
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request){
-	// ParseForm parses the raw query from the URL and updates r.Form.
-	// For POST requests, it also parses the request body as a form and puts the results into both r.PostForm and r.Form.
+func LoginAuthHandler(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
-	// FormValue returns the first value for the named component of the query.
-	// POST and PUT body parameters take precedence over URL query string values.
-	// FormValue calls ParseMultipartForm and ParseForm if necessary and ignores any errors returned by these functions.
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-	// Check if username is already taken
 	Login(username, password, w, r)
 }
 
 func Login(username string, password string, w http.ResponseWriter, r *http.Request){
 	var user string
 	var pass string
-	err := DB.QueryRow("SELECT username, password FROM users WHERE username=?", username).Scan(&user, &pass)
+	log.Print("Logging in...")
+	err := db.QueryRow("SELECT username, password FROM User WHERE username=?", username).Scan(&user, &pass)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("user: ", user)
+	log.Println("pass: ", pass)
+	log.Println("username: ", username)
+	log.Println("password: ", password)
 	switch {
 		case err == sql.ErrNoRows:
-			// Username is not taken
-			// Redirect to login page
-			http.Redirect(w, r, "/", http.StatusMovedPermanently)
+			log.Println(err)
 		case err != nil:
 			log.Println(err)
 		default:
-			// Username is taken
-			// Check password
 			err := bcrypt.CompareHashAndPassword([]byte(pass), []byte(password))
 			if err != nil {
 				log.Println(err)
-				// Redirect to login page
-				http.Redirect(w, r, "/", http.StatusMovedPermanently)
 			} else {
-				// Redirect to home page
-				http.Redirect(w, r, "/home", http.StatusMovedPermanently)
+				log.Print("Logged in")
+				CurrentUser = User{
+					Username: user,
+					ID: 1,
+				}
+				log.Println("Current user: ", CurrentUser)
+				tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
+				err = tmpl.Execute(w, CurrentUser)
+				if err != nil {
+					log.Println(err)
+				}
 			}
 	}
 }

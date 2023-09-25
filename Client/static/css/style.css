@@ -16,6 +16,7 @@ body{
 }
 
 .title{
+    font-family: 'Dela Gothic One', cursive;
     color: white;
     font-size: 50px;
     margin-bottom: -20px;
@@ -102,4 +103,26 @@ form label{
     margin-left: 5px;
     color: white;
     font-size: 12px;
+}
+
+.navbar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(0, 0, 45);
+    height: 75px;
+    width: 100%;
+}
+
+.navbar .title{
+    font-family: 'Dela Gothic One', cursive;
+    font-size: 37px;
+    margin-top: -15px;
+    margin-bottom: 0px;
+    padding-left: 20px;
+}
+
+.nav-links{
+    margin-right: 20px;
 }
