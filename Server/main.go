@@ -33,6 +33,7 @@ func main() {
 	http.HandleFunc("/swap-log/", h3)
 	http.HandleFunc("/register/", RegistraitionAuthHandler)
 	http.HandleFunc("/login/", LoginAuthHandler)
+	http.HandleFunc("/openProject/", OpenProjectHandler)
 
 	ConnectToDB()
 

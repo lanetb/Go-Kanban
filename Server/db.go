@@ -2,11 +2,13 @@ package main
 
 import (
 	"database/sql"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"unicode"
-	"html/template"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
@@ -24,7 +26,26 @@ type Project struct{
 	LastUpdated string
 }
 
+type Board struct{
+	ID int
+	ProjectID int
+	UserID int
+	Name string
+}
+
+type Task struct{
+	ID int
+	BoardID int
+	ProjectID int
+	UserID int
+	Name string
+	Description string
+	Type string
+}
+
 var Projects []Project
+var Boards []Board
+var Tasks []Task
 //    db is a global variable that holds the connection to the database
 func ConnectToDB(){
 	log.Println("Connecting to database...")
@@ -193,4 +214,70 @@ func CreateProject(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
+	log.Println("Opening project...")
+	r.ParseForm()
+	val := r.FormValue("projectID")
+	projectName := r.FormValue("Name")
+	//convert projectID to int
+	projectID, err := strconv.Atoi(val)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Opening project: ", projectID)
+	GetBoards(projectID)
+	GetTasks(projectID)
+	tmpl, _ := template.ParseFiles("../Client/html/project.html")
+	data := struct{
+		ProjectName string
+		User User
+		Boards []Board
+		Tasks []Task
+	}{
+		ProjectName: projectName,
+		User: CurrentUser,
+		Boards: Boards,
+		Tasks: Tasks,
+	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Project opened")
+}
+
+func GetBoards(projectID int){
+	log.Println("Retrieving boards...")
+	rows, err := db.Query("SELECT * FROM Board WHERE ProjectID=?", projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	for rows.Next(){
+		var board Board
+		err := rows.Scan(&board.ID, &board.ProjectID, &board.UserID, &board.Name)
+		if err != nil {
+			log.Println(err)
+		}
+		Boards = append(Boards, board)
+	}
+	log.Println("Boards retrieved")
+}
+
+func GetTasks(projectID int){
+	log.Println("Retrieving tasks...")
+	rows, err := db.Query("SELECT * FROM Task WHERE ProjectID=?", projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	for rows.Next(){
+		var task Task
+		err := rows.Scan(&task.ID, &task.BoardID, &task.ProjectID, &task.UserID, &task.Name, &task.Description, &task.Type)
+		if err != nil {
+			log.Println(err)
+		}
+		Tasks = append(Tasks, task)
+	}
+	log.Println("Tasks retrieved")
 }

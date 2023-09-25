@@ -16,3 +16,23 @@ CREATE TABLE Project (
 
 INSERT INTO Project (UserID, ProjectName)
 VALUES('1', 'DarnBan');
+
+CREATE TABLE Board (
+    BoardID   int          NOT NULL AUTO_INCREMENT,
+    ProjectID int          NOT NULL,
+    UserId    int          NOT NULL,
+    BoardName varchar(255) NOT NULL,
+    PRIMARY KEY (BoardID)
+);
+
+CREATE TABLE Task (
+    TaskID      int          NOT NULL AUTO_INCREMENT,
+    BoardID     int          NOT NULL,
+    ProjectID   int          NOT NULL,
+    UserId      int          NOT NULL,
+    TaskName    varchar(255) NOT NULL,
+    Discription varchar(600) NOT NULL,
+    Type        varchar(255) NOT NULL,
+    PRIMARY KEY (TaskID)
+);
+

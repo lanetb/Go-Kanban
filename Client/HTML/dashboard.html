@@ -1,4 +1,4 @@
-<body>
+<body id="body">
     <div class="navbar">
         <h1 class="title">Darn<span>Ban</span></h1>
         <div class="nav-links">
@@ -6,11 +6,13 @@
             <button>Settings</button>
         </div>
     </div>
-    <div class="project-board">
-        {{range .Projects}}
-        <div class="project">
-            <h2>{{.Name}}</h2>
+    <div class="project-board-container">
+        <div class="project-board">
+            {{range .Projects}}
+            <div class="project" hx-post="/openProject/" hx-target="#body" hx-vals="js:{projectID: {{.ID}}, Name: {{.Name}}}">
+                <h2>{{.Name}}</h2>
+            </div>
+            {{end}}
         </div>
-        {{end}}
     </div>
 </body>
