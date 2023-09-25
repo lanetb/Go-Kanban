@@ -18,6 +18,13 @@ type User struct{
 	ID int
 }
 var CurrentUser User
+type Project struct{
+	Name string
+	ID int
+	LastUpdated string
+}
+
+var Projects []Project
 //    db is a global variable that holds the connection to the database
 func ConnectToDB(){
 	log.Println("Connecting to database...")
@@ -46,21 +53,20 @@ func RegistraitionAuthHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	email := r.FormValue("email")
 	var user string
-
 	var usernameValid bool = true
-	log.Println("here 1")
+	var usernameLength bool = true
+	var passLower, passUpper, passNumber, passSpecial, passLength, passNoSpace bool = false, false, false, false, false, true
+
 	for _, char := range username {
 		if !unicode.IsLetter(char) && !unicode.IsNumber(char) {
 			usernameValid = false
 		}
 	}
-	log.Println("here 2")
-	var usernameLength bool = true
+
 	if len(username) <= 3 || len(username) >= 30 {
 		usernameLength = false
 	}
-	log.Println("here 3")
-	var passLower, passUpper, passNumber, passSpecial, passLength, passNoSpace bool = false, false, false, false, false, true
+
 	for _, char := range password {
 		switch{
 			case unicode.IsLower(char):
@@ -75,25 +81,14 @@ func RegistraitionAuthHandler(w http.ResponseWriter, r *http.Request) {
 				passNoSpace = false
 		}
 	}
+
 	if len(password) >= 8 && len(password) <= 50 {
 		passLength = true
 	}
-	log.Println("here 4")
+
 	err := db.QueryRow("SELECT username FROM User WHERE username=?", username).Scan(&user)
-	log.Println("here 5")
 	switch {
 		case err == sql.ErrNoRows:
-			log.Println("username: ", username)
-			log.Println("password: ", password)
-			log.Println("email: ", email)
-			log.Println("usernameValid: ", usernameValid)
-			log.Println("usernameLength: ", usernameLength)
-			log.Println("passLower: ", passLower)
-			log.Println("passUpper: ", passUpper)
-			log.Println("passNumber: ", passNumber)
-			log.Println("passSpecial: ", passSpecial)
-			log.Println("passLength: ", passLength)
-			log.Println("passNoSpace: ", passNoSpace)
 			if usernameValid && usernameLength && passLower && passUpper  && passNumber && passSpecial && passLength && passNoSpace {
 				hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 				if err != nil {
@@ -134,10 +129,6 @@ func Login(username string, password string, w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("user: ", user)
-	log.Println("pass: ", pass)
-	log.Println("username: ", username)
-	log.Println("password: ", password)
 	switch {
 		case err == sql.ErrNoRows:
 			log.Println(err)
@@ -153,7 +144,7 @@ func Login(username string, password string, w http.ResponseWriter, r *http.Requ
 					Username: user,
 					ID: 1,
 				}
-				log.Println("Current user: ", CurrentUser)
+				GetProjects()
 				tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
 				err = tmpl.Execute(w, CurrentUser)
 				if err != nil {
@@ -161,4 +152,22 @@ func Login(username string, password string, w http.ResponseWriter, r *http.Requ
 				}
 			}
 	}
+}
+
+func GetProjects(){
+	log.Println("Retrieving projects...")
+	rows, err := db.Query("SELECT * FROM Project WHERE UserID=?", CurrentUser.ID)
+	if err != nil {
+		log.Println(err)
+	}
+	for rows.Next(){
+		var project Project
+		err := rows.Scan(&project.Name, &project.ID, &project.LastUpdated)
+		if err != nil {
+			log.Println(err)
+		}
+		Projects = append(Projects, project)
+	}
+	log.Println("Projects retrieved")
+
 }
