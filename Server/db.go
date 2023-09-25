@@ -219,8 +219,9 @@ func CreateProject(w http.ResponseWriter, r *http.Request){
 func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Opening project...")
 	r.ParseForm()
+	log.Println("Form: ", r.Form)
 	val := r.FormValue("projectID")
-	projectName := r.FormValue("Name")
+	projectName := r.FormValue("projectName")
 	//convert projectID to int
 	projectID, err := strconv.Atoi(val)
 	if err != nil {

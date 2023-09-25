@@ -9,7 +9,7 @@
     <div class="project-board-container">
         <div class="project-board">
             {{range .Projects}}
-            <div class="project" hx-post="/openProject/" hx-target="#body" hx-vals="js:{projectID: {{.ID}}, Name: {{.Name}}}">
+            <div class="project" hx-post="/openProject/" hx-target="#body" hx-vals='{"projectID": "{{.ID}}", "projectName": "{{.Name}}"}'>
                 <h2>{{.Name}}</h2>
             </div>
             {{end}}

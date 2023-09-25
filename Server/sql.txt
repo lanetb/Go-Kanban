@@ -25,14 +25,20 @@ CREATE TABLE Board (
     PRIMARY KEY (BoardID)
 );
 
+INSERT INTO Board (ProjectID, UserID, BoardName)
+VALUES('1','1','Backlog');
+
 CREATE TABLE Task (
     TaskID      int          NOT NULL AUTO_INCREMENT,
     BoardID     int          NOT NULL,
     ProjectID   int          NOT NULL,
     UserId      int          NOT NULL,
     TaskName    varchar(255) NOT NULL,
-    Discription varchar(600) NOT NULL,
+    Description varchar(600) NOT NULL,
     Type        varchar(255) NOT NULL,
     PRIMARY KEY (TaskID)
 );
+
+INSERT INTO Task (BoardID, ProjectID, UserID, TaskName, Description, Type)
+VALUES('1', '1', '1', 'Do All CSS', 'CSS needed for the project screen', 'UI/UX');
 
