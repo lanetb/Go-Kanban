@@ -23,10 +23,10 @@ func main() {
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "session")
-		var User User
+		var NewUser User
 		if session.Values["CurrentUser"] == nil {
 			log.Println("herio 1")
-			session.Values["CurrentUser"] = User
+			session.Values["CurrentUser"] = NewUser
 			err := session.Save(r, w)
 			if err != nil {
 				log.Println(err)
@@ -34,9 +34,17 @@ func main() {
 			tmpl := template.Must(template.ParseFiles("../Client/html/index.html"))
 			tmpl.Execute(w, nil)
 		} else {
-			log.Println("herio 2")
-			tmpl := template.Must(template.ParseFiles("../Client/html/index.html"))
-			tmpl.Execute(w, nil)
+			log.Println(session.Values["CurrentUser"].(User).Username)
+			log.Println(session.Values["CurrentUser"].(User).Projects)
+				data := struct{
+					CurrUser User 
+					Projects map[int]Project
+				}{
+					CurrUser: session.Values["CurrentUser"].(User),
+					Projects: session.Values["CurrentUser"].(User).Projects,
+				}
+			tmpl := template.Must(template.ParseFiles("../Client/html/indexsigned.html"))
+			tmpl.Execute(w, data)
 		}
 	}
 

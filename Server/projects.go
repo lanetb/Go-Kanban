@@ -92,6 +92,7 @@ func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int) {
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
 	CurrProject := CurrentUser.Projects[projectID]
+	var tempBoard []Board
 	if err != nil {
 		log.Println(err)
 	}
@@ -101,8 +102,10 @@ func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int) {
 		if err != nil {
 			log.Println(err)
 		}
-		CurrProject.Boards = append(CurrProject.Boards, board)
+		tempBoard = append(tempBoard, board)
 	}
+	log.Println(tempBoard)
+	CurrProject.Boards = tempBoard
 	CurrentUser.Projects[projectID] = CurrProject
 	session.Values["CurrentUser"] = CurrentUser
 	session.Save(r, w)
