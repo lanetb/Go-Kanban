@@ -13,19 +13,19 @@ func GetProjects(w http.ResponseWriter ,r *http.Request){
 	CurrentUser := session.Values["CurrentUser"].(User) // type assert to User
 	log.Println("Retrieving projects...")
 	rows, err := db.Query("SELECT * FROM Project WHERE UserID=?", CurrentUser.ID)
-	log.Println("here 4")
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("here 5")
+	projects := make(map[int]Project)
 	for rows.Next(){
 		var project Project
 		err := rows.Scan(&project.ID, &project.UserID, &project.Name, &project.LastUpdated)
 		if err != nil {
 			log.Println(err)
 		}
-		CurrentUser.Projects = append(CurrentUser.Projects, project) // access Projects field directly
+		projects[project.ID] = project // access Projects field directly
 	}
+	CurrentUser.Projects = projects
 	session.Values["CurrentUser"] = CurrentUser // update session value
 	session.Save(r, w)
 	log.Println("Projects retrieved")
@@ -58,7 +58,7 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 		log.Println(err)
 	}
 	log.Println("Opening project: ", projectID)
-	GetBoards(projectID)
+	GetBoards(w, r, projectID)
 	GetTasks(projectID)
 	for i, board := range Boards{
 		for _, task := range Tasks{
@@ -84,9 +84,13 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Project opened")
 }
 
-func GetBoards(projectID int){
+func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int){
+	session, _ := store.Get(r, "session")
+	CurrentUser := session.Values["CurrentUser"].(User)
+	CurrProject := CurrentUser.Projects[projectID]
 	log.Println("Retrieving boards...")
 	rows, err := db.Query("SELECT * FROM Board WHERE ProjectID=?", projectID)
+	
 	if err != nil {
 		log.Println(err)
 	}
@@ -96,8 +100,11 @@ func GetBoards(projectID int){
 		if err != nil {
 			log.Println(err)
 		}
-		Boards = append(Boards, board)
+		CurrProject.Boards = append(Boards, board)
 	}
+	CurrentUser.Projects[projectID] = CurrProject
+	session.Values["CurrentUser"] = CurrentUser
+	session.Save(r, w)
 	log.Println("Boards retrieved")
 }
 

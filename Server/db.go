@@ -8,10 +8,6 @@ import (
 	"github.com/joho/godotenv"
 )
 var db *sql.DB
-var CurrentUser User
-var Projects []Project
-var Boards []Board
-var Tasks []Task
 //    db is a global variable that holds the connection to the database
 func ConnectToDB(){
 	log.Println("Connecting to database...")

@@ -1,9 +1,12 @@
 package main
-
+var CurrentUser User
+var Projects []Project
+var Boards []Board
+var Tasks []Task
 type User struct{
 	Username string
 	ID 		 int
-	Projects []Project
+	Projects map[int]Project
 }
 
 type Project struct{

@@ -64,7 +64,7 @@ func RegistraitionAuthHandler(w http.ResponseWriter, r *http.Request) {
 					log.Println(err)
 				}
 				log.Println("User created")
-				//Login(username, password, w, r)
+				Login(username, password, w, r)
 			} else {
 				log.Println("Password invalid")
 			}
@@ -72,7 +72,6 @@ func RegistraitionAuthHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		default:
 			log.Println("Username taken")
-			Login(username, password, w, r)
 	}
 
 }
@@ -104,20 +103,22 @@ func Login(username string, password string, w http.ResponseWriter, r *http.Requ
 				log.Println(err)
 			} else {
 				log.Print("Logged in")
+
 				session, _ := store.Get(r, "session")
-				log.Print("here 1")
 				session.Values["CurrentUser"] = CurrentUser
-				log.Print("here 2")
 				currentUser := session.Values["CurrentUser"].(User)
 				currentUser.Username = user
 				currentUser.ID = ID
 				session.Values["CurrentUser"] = currentUser
-				log.Print("here 3")
 				session.Save(r, w)
+
 				GetProjects(w, r)
+
 				CurrentUser := session.Values["CurrentUser"]
 				tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
-				log.Println("Projects: ", Projects)
+				if currentUser, ok := CurrentUser.(User); ok {
+					log.Println("Projects: ", currentUser.Projects)
+				}
 				data := struct{
 					User User 
 					Projects []Project
