@@ -180,3 +180,95 @@ form label{
     width: 100%;
     height: 100vh - 75px;
 }
+
+.board-container{
+    display:flex;
+}
+
+.boards{
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: top;
+    color: var(--text);
+    margin: 20px;
+}
+
+.board{
+    display: flex;
+    flex-direction: column;
+    background-color: var(--secondary);
+    padding: 5px;
+    width: 300px;
+    margin: 10px;
+    border-radius: 15px;
+}
+
+.board-head{
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    background-color: var(--primary);
+    height: 25px;
+    padding: 10px;
+    border-radius: 10px;
+    width: 100% - 20px;
+}
+
+.board-head h2{
+    font-size: 20px;
+}
+
+.tasks{
+    display: flex;
+    flex-direction: column;
+}
+
+.task{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: left;
+    background-color: var(--primary);
+    border-radius: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    width: 100% - 20px;
+    flex-basis: auto;
+}
+
+.task h3, p{
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 2px;
+}
+
+.task h3{
+    font-size: 17px;
+}
+
+.task p{
+    margin-top: 2px;
+}
+
+.discription{
+    font-size: 14px;
+}
+
+.type{
+    font-size: 12px;
+}
+
+.task:hover{
+    border: 2px solid var(--accent);
+    cursor: pointer;
+    width: auto;
+}
+
+
+
+
+

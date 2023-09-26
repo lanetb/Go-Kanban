@@ -6,4 +6,28 @@
             <button>Settings</button>
         </div>
     </div>
+    <div class="boards-container">
+        <div class="boards">
+            {{range $board := .Boards}}
+            <div class="board">
+                <div class="board-head">
+                    <h2>{{$board.Name}}</h2>
+                </div>
+                <div class="tasks" hx-spo>
+                        {{range $task := .Tasks}}
+                        <div draggable class="task">
+                            <h3>{{$task.Name}}</h3>
+                            <p class="discription">{{$task.Description}}</p>
+                            <p class="type">{{$task.Type}}</p>
+                        </div>
+                        {{end}}
+                </div>
+            </div>
+            {{end}}
+        </div>
+    </div>
  </body>
+
+{{ define "task" }}
+
+{{end}}
