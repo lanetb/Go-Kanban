@@ -4,8 +4,13 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/context"
+	"github.com/gorilla/sessions"
 )
+
+var store = sessions.NewCookieStore([]byte("secret-key"))
 
 func main() {
 	log.Println("Application Started")
@@ -37,5 +42,5 @@ func main() {
 
 	ConnectToDB()
 
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	log.Fatal(http.ListenAndServe(":8000", context.ClearHandler(http.DefaultServeMux)))
 }
