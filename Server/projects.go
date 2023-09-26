@@ -6,11 +6,12 @@ import (
 	"net/http"
 	_ "github.com/go-sql-driver/mysql"
 	"strconv"
+	"github.com/gorilla/sessions"
 )
 
-func GetProjects(w http.ResponseWriter ,r *http.Request){
-	session, _ := store.Get(r, "session")
-	CurrentUser := session.Values["CurrentUser"].(User) // type assert to User
+func GetProjects(w http.ResponseWriter ,r *http.Request, session *sessions.Session) User{
+	// type assert to User
+	CurrentUser := session.Values["CurrentUser"].(User)
 	log.Println("Retrieving projects...")
 	rows, err := db.Query("SELECT * FROM Project WHERE UserID=?", CurrentUser.ID)
 	if err != nil {
@@ -25,26 +26,26 @@ func GetProjects(w http.ResponseWriter ,r *http.Request){
 		}
 		projects[project.ID] = project // access Projects field directly
 	}
-	CurrentUser.Projects = projects
+	CurrentUser.Projects = projects // fix type assertion error
 	session.Values["CurrentUser"] = CurrentUser // update session value
-	session.Save(r, w)
 	log.Println("Projects retrieved")
-}
+	return CurrentUser
+}	
 
-func CreateProject(w http.ResponseWriter, r *http.Request){
-	r.ParseForm()
-	projectName := r.FormValue("projectName")
-	_, err := db.Exec("INSERT INTO Project (ProjectName, UserID) VALUES (?, ?)", projectName, CurrentUser.ID)
-	if err != nil {
-		log.Println(err)
-	}
-	GetProjects(w, r)
-	tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
-	err = tmpl.Execute(w, CurrentUser)
-	if err != nil {
-		log.Println(err)
-	}
-}
+//func CreateProject(w http.ResponseWriter, r *http.Request){
+//	r.ParseForm()
+//	projectName := r.FormValue("projectName")
+//	_, err := db.Exec("INSERT INTO Project (ProjectName, UserID) VALUES (?, ?)", projectName, CurrentUser.ID)
+//	if err != nil {
+//		log.Println(err)
+//	}
+//	GetProjects(w, r)
+//	tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
+//	err = tmpl.Execute(w, CurrentUser)
+//	if err != nil {
+//		log.Println(err)
+//	}
+//}
 
 func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Opening project...")
@@ -54,20 +55,20 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	projectName := r.FormValue("projectName")
 	//convert projectID to int
 	projectID, err := strconv.Atoi(val)
+	log.Println("here 1")
+	session, _ := store.Get(r, "session")
+	log.Println("here 2")
+	CurrentUser := session.Values["CurrentUser"].(User)
+	log.Println("here 3")
+	CurrProject := CurrentUser.Projects[projectID]
 	if err != nil {
 		log.Println(err)
 	}
 	log.Println("Opening project: ", projectID)
-	GetBoards(w, r, projectID)
-	GetTasks(projectID)
-	for i, board := range Boards{
-		for _, task := range Tasks{
-			if board.ID == task.BoardID{
-				Boards[i].Tasks = append(Boards[i].Tasks, task)
-			}
-		}
-	}
+	CurrentUser = GetBoards(w, r, projectID, CurrentUser, CurrProject, session)
+	CurrentUser = GetTasks(w, r , projectID, CurrentUser, CurrProject, session)
 	tmpl, _ := template.ParseFiles("../Client/html/project.html")
+	session.Values["CurrentUser"] = CurrentUser
 	data := struct{
 		ProjectName string
 		User User
@@ -75,8 +76,9 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	}{
 		ProjectName: projectName,
 		User: CurrentUser,
-		Boards: Boards,
+		Boards: CurrProject.Boards,
 	}
+	session.Save(r, w)
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Println(err)
@@ -84,10 +86,7 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Project opened")
 }
 
-func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int){
-	session, _ := store.Get(r, "session")
-	CurrentUser := session.Values["CurrentUser"].(User)
-	CurrProject := CurrentUser.Projects[projectID]
+func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int, CurrentUser User , CurrProject Project, session *sessions.Session) User{
 	log.Println("Retrieving boards...")
 	rows, err := db.Query("SELECT * FROM Board WHERE ProjectID=?", projectID)
 	
@@ -100,16 +99,15 @@ func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int){
 		if err != nil {
 			log.Println(err)
 		}
-		CurrProject.Boards = append(Boards, board)
+		CurrProject.Boards = append(CurrProject.Boards, board)
 	}
 	CurrentUser.Projects[projectID] = CurrProject
 	session.Values["CurrentUser"] = CurrentUser
-	session.Save(r, w)
 	log.Println("Boards retrieved")
+	return CurrentUser
 }
 
-func GetTasks(projectID int){
-	log.Println("Retrieving tasks...")
+func GetTasks(w http.ResponseWriter ,r *http.Request, projectID int, CurrentUser User , CurrProject Project, session *sessions.Session) User{
 	rows, err := db.Query("SELECT * FROM Task WHERE ProjectID=?", projectID)
 	if err != nil {
 		log.Println(err)
@@ -120,7 +118,14 @@ func GetTasks(projectID int){
 		if err != nil {
 			log.Println(err)
 		}
-		Tasks = append(Tasks, task)
+		for i, board := range CurrProject.Boards{
+			if board.ID == task.BoardID{
+				CurrProject.Boards[i].Tasks = append(CurrProject.Boards[i].Tasks, task)
+			}
+		}
 	}
+	CurrentUser.Projects[projectID] = CurrProject
+	session.Values["CurrentUser"] = CurrentUser
 	log.Println("Tasks retrieved")
+	return CurrentUser
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	
 )
 var db *sql.DB
 //    db is a global variable that holds the connection to the database

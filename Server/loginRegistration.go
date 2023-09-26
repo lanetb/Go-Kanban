@@ -103,28 +103,27 @@ func Login(username string, password string, w http.ResponseWriter, r *http.Requ
 				log.Println(err)
 			} else {
 				log.Print("Logged in")
-
+				var currentUser User
+				currentUser = User{
+					Username: user,
+					ID: ID,
+					Projects: make(map[int]Project),
+				}
 				session, _ := store.Get(r, "session")
-				session.Values["CurrentUser"] = CurrentUser
-				currentUser := session.Values["CurrentUser"].(User)
-				currentUser.Username = user
-				currentUser.ID = ID
+				session.Options.MaxAge = 60 * 60 * 24
 				session.Values["CurrentUser"] = currentUser
+				log.Println("User: ", currentUser.Username)
 				session.Save(r, w)
 
-				GetProjects(w, r)
-
-				CurrentUser := session.Values["CurrentUser"]
+				currentUser = GetProjects(w, r, session)
+				session.Save(r, w)
 				tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
-				if currentUser, ok := CurrentUser.(User); ok {
-					log.Println("Projects: ", currentUser.Projects)
-				}
 				data := struct{
 					User User 
-					Projects []Project
+					Projects map[int]Project
 				}{
-					User: CurrentUser.(User),
-					Projects: CurrentUser.(User).Projects,
+					User: currentUser,
+					Projects: currentUser.Projects,
 				}
 				err = tmpl.Execute(w, data)
 				if err != nil {
