@@ -31,6 +31,7 @@ type Board struct{
 	ProjectID int
 	UserID int
 	Name string
+	Tasks []Task
 }
 
 type Task struct{
@@ -230,17 +231,22 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Opening project: ", projectID)
 	GetBoards(projectID)
 	GetTasks(projectID)
+	for i, board := range Boards{
+		for _, task := range Tasks{
+			if board.ID == task.BoardID{
+				Boards[i].Tasks = append(Boards[i].Tasks, task)
+			}
+		}
+	}
 	tmpl, _ := template.ParseFiles("../Client/html/project.html")
 	data := struct{
 		ProjectName string
 		User User
 		Boards []Board
-		Tasks []Task
 	}{
 		ProjectName: projectName,
 		User: CurrentUser,
 		Boards: Boards,
-		Tasks: Tasks,
 	}
 	err = tmpl.Execute(w, data)
 	if err != nil {
