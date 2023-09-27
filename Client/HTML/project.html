@@ -2,8 +2,7 @@
     <div class="navbar">
         <h1 class="title">Darn<span>Ban</span></h1>
         <div class="nav-links">
-            <button>New Project</button>
-            <button>Settings</button>
+            <button data-modal-target="#modal">New Board</button>
         </div>
     </div>
     <div class="boards-container">
@@ -30,6 +29,23 @@
             {{end}}
         </div>
     </div>
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Board</h2>
+                <button data-close-button>x</button>
+            </div>
+            <div class="modal-body">
+                <form hx-post="/createBoard/" hx-target="#body" hx-vals='{"projectID": "{{.Project.ID}}"}'>
+                    <label for="boardName">Board Name</label>
+                    <input type="text" name="boardName" id="boardName" placeholder="Board Name">
+                    <button type="submit">Create Board</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="overlay"></div>
+    <script src="../static/js/modal.js"></script>
     <script src="../static/js/sortable.js"></script>
  </body>
 

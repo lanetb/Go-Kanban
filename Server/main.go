@@ -64,6 +64,8 @@ func main() {
 	http.HandleFunc("/register/", RegistraitionAuthHandler)
 	http.HandleFunc("/login/", LoginAuthHandler)
 	http.HandleFunc("/openProject/", OpenProjectHandler)
+	http.HandleFunc("/createProject/", CreateProjectHandler)
+	http.HandleFunc("/createBoard/", CreateBoardHandler)
 
 	ConnectToDB()
 

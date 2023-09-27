@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=IBM+Plex+Sans&family=Source+Code+Pro:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Handlee&family=Source+Code+Pro:wght@600&display=swap');
 :root{
     --text: rgb(255, 255, 255);
     --background: rgb(40, 40, 85);
@@ -10,7 +10,7 @@
 body{
     margin: 0;
     padding: 0;
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'Handlee', cursive;
     background: var(--background);
     background-size: cover;
 }
@@ -155,6 +155,8 @@ form label{
     margin-bottom: 20px;
     margin-left: 10px;
     margin-right: 10px;
+    flex-wrap: wrap;
+    padding: 10px;
 }
 
 .project h2{
@@ -297,7 +299,109 @@ form label{
     background-color: lightskyblue;
 }
 
+.modal{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.3s ease-in-out;
+    border: 1px solid black;
+    border-radius: 10px;
+    z-index: 10;
+    width: 500px;
+    max-width: 80%;
+    height: 200px;
+    padding-top: 0;
+    background-color: var(--secondary);
+    border-color: var(--text);
+}
 
+.modal.active{
+    transform: translate(-50%, -50%) scale(1);
+    transition: transform 0.3s ease-in-out;
+}
 
+.modal-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid black;
+    padding: 5px 20px;
+    border-color: var(--text);
+}
 
+.modal-header button{
+    border: none;
+    cursor: pointer;
+    background-color: inherit;
+    font-size: 36px;
+    padding: 0;
+    width: auto;
+    height: auto;
+    margin-top: -10px;
+    color: var(--text);
+}
 
+.modal-header h2{
+    margin: 0;
+    font-size: 36px;
+    color: var(--text);
+    
+}
+
+.modal-body{
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-body form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+}
+
+.modal-body form input{
+    margin: 5px;
+    width: 280px;
+    height: 20px;
+    border-radius: 7px;
+}
+
+.modal-body form label{
+    align-self: flex-start;
+    margin-left: 5px;
+    color: var(--text);
+    font-size: 12px;
+}
+
+.modal-body form button{
+    width: 280px;
+    height: 30px;
+    border-radius: 7px;
+    background-color: var(--accent);
+    border: none;
+    cursor: pointer;
+}
+
+#overlay{
+    position: fixed;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+#overlay.active{
+    opacity: 1;
+    pointer-events: all;
+}

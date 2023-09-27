@@ -33,20 +33,101 @@ func GetProjects(w http.ResponseWriter ,r *http.Request, session *sessions.Sessi
 	return CurrentUser
 }	
 
-//func CreateProject(w http.ResponseWriter, r *http.Request){
-//	r.ParseForm()
-//	projectName := r.FormValue("projectName")
-//	_, err := db.Exec("INSERT INTO Project (ProjectName, UserID) VALUES (?, ?)", projectName, CurrentUser.ID)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//	GetProjects(w, r)
-//	tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
-//	err = tmpl.Execute(w, CurrentUser)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//}
+func CreateProjectHandler(w http.ResponseWriter, r *http.Request){
+	log.Println("Creating project...")
+	r.ParseForm()
+	session, _ := store.Get(r, "session")
+	CurrentUser := session.Values["CurrentUser"].(User)
+	projectName := r.FormValue("projectName")
+	// insert project into database
+	stmt, err := db.Prepare("INSERT INTO Project (UserID, ProjectName) VALUES (?, ?)")
+	if err != nil {
+		log.Println(err)
+	}
+	res, err := stmt.Exec(CurrentUser.ID, projectName)
+	if err != nil {
+		log.Println(err)
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		log.Println(err)
+	}
+	BuildBoard(session, w, r, int(id), CurrentUser, "Backlog")
+	BuildBoard(session, w, r, int(id), CurrentUser, "In Progress")
+	BuildBoard(session, w, r, int(id), CurrentUser, "Finished")
+	log.Println("Project created")
+	// update session value
+	CurrentUser.Projects[int(id)] = Project{ID: int(id), UserID: CurrentUser.ID, Name: projectName}
+	session.Values["CurrentUser"] = CurrentUser
+	session.Save(r, w)
+	log.Println("Project created")
+
+	tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
+	data := struct{
+		User User 
+		Projects map[int]Project
+	}{
+		User: session.Values["CurrentUser"].(User),
+		Projects: session.Values["CurrentUser"].(User).Projects,
+	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func CreateBoardHandler(w http.ResponseWriter, r *http.Request){
+	log.Println("Creating board...")
+	r.ParseForm()
+	session, _ := store.Get(r, "session")
+	CurrentUser := session.Values["CurrentUser"].(User)
+	projectID, err := strconv.Atoi(r.FormValue("projectID"))
+	boardName := r.FormValue("boardName")
+	log.Println("ProjectID: ", projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	// insert board into database
+	BuildBoard(session, w, r, projectID, CurrentUser, boardName)
+	tmpl, _ := template.ParseFiles("../Client/html/project.html")
+	data := struct{
+		ProjectName string
+		User User
+		Boards []Board
+	}{
+		ProjectName: CurrentUser.Projects[projectID].Name,
+		User: session.Values["CurrentUser"].(User),
+		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
+	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func BuildBoard(session *sessions.Session, w http.ResponseWriter, r *http.Request, projectID int, CurrentUser User, boardName string) {
+	stmt, err := db.Prepare("INSERT INTO Board (ProjectID, UserID, BoardName) VALUES (?, ?, ?)")
+	if err != nil {
+		log.Println(err)
+	}
+	res, err := stmt.Exec(projectID, CurrentUser.ID, boardName)
+	if err != nil {
+		log.Println(err)
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Board created")
+	// update session value
+	project := CurrentUser.Projects[projectID]
+	project.Boards = append(project.Boards, Board{ID: int(id), ProjectID: projectID, UserID: CurrentUser.ID, Name: boardName})
+	CurrentUser.Projects[projectID] = project
+	session.Values["CurrentUser"] = CurrentUser
+	session.Save(r, w)
+	log.Println("Board created")
+}
+
 
 func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Opening project...")
@@ -72,10 +153,12 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	data := struct{
 		ProjectName string
 		User User
+		Project Project
 		Boards []Board
 	}{
 		ProjectName: projectName,
 		User: session.Values["CurrentUser"].(User),
+		Project: session.Values["CurrentUser"].(User).Projects[projectID],
 		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
 	}
 	session.Save(r, w)

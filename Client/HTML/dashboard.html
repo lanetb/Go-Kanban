@@ -2,7 +2,7 @@
     <div class="navbar">
         <h1 class="title">Darn<span>Ban</span></h1>
         <div class="nav-links">
-            <button>New Project</button>
+            <button data-modal-target="#modal">New Project</button>
             <button>Settings</button>
         </div>
     </div>
@@ -15,4 +15,21 @@
             {{end}}
         </div>
     </div>
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Project</h2>
+                <button data-close-button>x</button>
+            </div>
+            <div class="modal-body">
+                <form action="/newProject/" method="POST">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" name="projectName" id="projectName" placeholder="Project Name">
+                    <button type="submit">Create Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="overlay"></div>
+    <script src="../static/js/modal.js"></script>
 </body>
