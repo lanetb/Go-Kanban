@@ -66,6 +66,7 @@ func main() {
 	http.HandleFunc("/openProject/", OpenProjectHandler)
 	http.HandleFunc("/createProject/", CreateProjectHandler)
 	http.HandleFunc("/createBoard/", CreateBoardHandler)
+	http.HandleFunc("/createTask/", CreateTaskHandler)
 
 	ConnectToDB()
 

@@ -11,6 +11,7 @@
             <div class="board">
                 <div class="board-head">
                     <h2>{{$board.Name}}</h2>
+                    <button data-modal-target="#modal{{$board.ID}}" value="{{$board.ID}}">+</button>
                 </div>
                 <div class="tasks">
                         {{range $task := .Tasks}}
@@ -24,6 +25,28 @@
                             {{end}}
                         </div>
                         {{end}}
+                </div>
+            </div>
+             <div class="modal" id="modal{{$board.ID}}">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>New Task</h2>
+                        <button data-close-button>x</button>
+                    </div>
+                    <div class="modal-body">
+                        <form hx-post="/createTask/" hx-target="#body" hx-vals='{"projectID": "{{$board.ProjectID}}", "boardID": "{{$board.ID}}"}' hx>
+                            <label for="taskName">Task Name</label>
+                            <input type="text" name="taskName" id="taskName" placeholder="Task Name">
+                            <label for="taskDescription">Task Discription</label>
+                            <textarea type="text" name="taskDescription" id="taskDescription" placeholder="Task Description"></textarea>
+                            <label for="taskType">Task Type</label>
+                            <select name="taskType" id="taskType">
+                                <option value="Code">Code</option>
+                                <option value="UI/UX">UI/UX</option>
+                            </select>
+                            <button type="submit">Create Task</button>
+                        </form>
+                    </div>
                 </div>
             </div>
             {{end}}
@@ -44,6 +67,7 @@
             </div>
         </div>
     </div>
+   
     <div id="overlay"></div>
     <script src="../static/js/modal.js"></script>
     <script src="../static/js/sortable.js"></script>

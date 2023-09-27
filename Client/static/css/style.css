@@ -215,13 +215,23 @@ form label{
 .board-head{
     display: flex;
     flex-direction: row;
-    justify-content: left;
+    justify-content: space-between;
     align-items: center;
     background-color: var(--primary);
     height: 25px;
     padding: 10px;
     border-radius: 10px;
     width: 100% - 20px;
+}
+
+.bhead-btn{
+    border: none;
+    cursor: pointer;
+    background-color: inherit;
+    font-size: 20px;
+    padding: 0;
+    color: var(--text);
+    margin-top: -5px;
 }
 
 .board-head h2{
@@ -310,7 +320,7 @@ form label{
     z-index: 10;
     width: 500px;
     max-width: 80%;
-    height: 200px;
+    min-height: 200px;
     padding-top: 0;
     background-color: var(--secondary);
     border-color: var(--text);
@@ -349,6 +359,13 @@ form label{
     color: var(--text);
     
 }
+.modal form textarea{
+    margin: 5px;
+    width: 280px;
+    height: 50px;
+    border-radius: 7px;
+    overflow: scroll;
+}
 
 .modal-body{
     padding: 20px;
@@ -356,6 +373,8 @@ form label{
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    height: auto;
+    gap: 10px;
 }
 
 .modal-body form{
@@ -363,7 +382,9 @@ form label{
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 300px;
+    min-width: 300px;
+    flex-grow: 1;
+    flex-shrink: 0;
 }
 
 .modal-body form input{
@@ -380,6 +401,13 @@ form label{
     font-size: 12px;
 }
 
+.modal-body form select{
+    margin: 5px;
+    width: 280px;
+    height: 30px;
+    border-radius: 7px;
+}
+
 .modal-body form button{
     width: 280px;
     height: 30px;
@@ -387,6 +415,7 @@ form label{
     background-color: var(--accent);
     border: none;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 #overlay{

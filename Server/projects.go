@@ -128,6 +128,64 @@ func BuildBoard(session *sessions.Session, w http.ResponseWriter, r *http.Reques
 	log.Println("Board created")
 }
 
+func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
+	log.Println("Creating task...")
+	r.ParseForm()
+	session, _ := store.Get(r, "session")
+	CurrentUser := session.Values["CurrentUser"].(User)
+	projectID, _ := strconv.Atoi(r.FormValue("projectID"))
+	boardID, err := strconv.Atoi(r.FormValue("boardID"))
+	taskName := r.FormValue("taskName")
+	taskDescription := r.FormValue("taskDescription")
+	taskType := r.FormValue("taskType")
+	log.Println("ProjectID: ", projectID)
+	log.Println("BoardID: ", boardID)
+	if err != nil {
+		log.Println(err)
+	}
+	// insert task into database
+	stmt, err := db.Prepare("INSERT INTO Task (BoardID, ProjectID, UserID, TaskName, Description, Type) VALUES (?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		log.Println(err)
+	}
+	res, err := stmt.Exec(boardID, projectID, CurrentUser.ID, taskName, taskDescription, taskType)
+	if err != nil {
+		log.Println(err)
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Task created")
+	// update session value
+	project := CurrentUser.Projects[projectID]
+	for i, board := range project.Boards{
+		if board.ID == boardID{
+			project.Boards[i].Tasks = append(project.Boards[i].Tasks, Task{ID: int(id), BoardID: boardID, ProjectID: projectID, UserID: CurrentUser.ID, Name: taskName, Description: taskDescription, Type: taskType})
+		}
+	}
+	CurrentUser.Projects[projectID] = project
+	session.Values["CurrentUser"] = CurrentUser
+	session.Save(r, w)
+	log.Println("Task created")
+	// redirect to project page
+	tmpl, _ := template.ParseFiles("../Client/html/project.html")
+	data := struct{
+		ProjectName string
+		User User
+		Project Project
+		Boards []Board
+	}{
+		ProjectName: CurrentUser.Projects[projectID].Name,
+		User: session.Values["CurrentUser"].(User),
+		Project: session.Values["CurrentUser"].(User).Projects[projectID],
+		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
+	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+}
 
 func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Opening project...")
