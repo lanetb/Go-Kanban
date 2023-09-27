@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=IBM+Plex+Sans&family=Source+Code+Pro:wght@600&display=swap');
 :root{
     --text: rgb(255, 255, 255);
     --background: rgb(40, 40, 85);
@@ -10,7 +10,7 @@
 body{
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+    font-family: 'IBM Plex Sans', sans-serif;
     background: var(--background);
     background-size: cover;
 }
@@ -201,7 +201,7 @@ form label{
     flex-direction: column;
     gap: 12px;
     background-color: var(--secondary);
-    padding: 12px;
+    padding: 7px;
     width: 300px;
     margin: 10px 0px;
     min-height: 75px;
@@ -230,6 +230,7 @@ form label{
     display: flex;
     flex-direction: column;
     min-height: 25px;
+    gap: 9px;
 }
 
 .task{
@@ -239,11 +240,10 @@ form label{
     align-items: left;
     background-color: var(--primary);
     border-radius: 10px;
-    margin-top: 5px;
-    margin-bottom: 5px;
     padding: 10px;
-    width: 100% - 20px;
-    flex-basis: auto;
+    margin-top: 1px;
+    flex-grow: 0;
+    border: 2px solid rgba(0 ,0, 0, 0);
 }
 
 .task h3, p{
@@ -269,21 +269,32 @@ form label{
 
 .type{
     font-size: 12px;
+    color: black;
+    align-self: flex-end;
+    padding: 3px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-family: 'Source Code Pro', monospace;
 }
 
 .task:hover{
     border: 2px solid var(--accent);
-    scale: .96;
     cursor: pointer;
-    width: auto;
-    margin-bottom: 1px;
 }
 
 .is-dragging{
-    scale: 1.05;
+    scale: 1.04;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.5);
     background-color: var(--accent);
     color: black;
+}
+
+.code{
+    background-color: lightgreen;
+}
+
+.UI{
+    background-color: lightskyblue;
 }
 
 

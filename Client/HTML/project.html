@@ -18,7 +18,11 @@
                         <div draggable="true" class="task">
                             <h3>{{$task.Name}}</h3>
                             <p class="discription">{{$task.Description}}</p>
-                            <p class="type">{{$task.Type}}</p>
+                            {{if eq $task.Type "Code"}}
+                                <p class="type code">{{$task.Type}}</p>
+                            {{else if eq $task.Type "UI/UX"}}
+                                <p class="type UI">{{$task.Type}}</p>
+                            {{end}}
                         </div>
                         {{end}}
                 </div>
