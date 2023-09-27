@@ -131,9 +131,15 @@ func BuildBoard(session *sessions.Session, w http.ResponseWriter, r *http.Reques
 func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Creating task...")
 	r.ParseForm()
-	session, _ := store.Get(r, "session")
+	session, err := store.Get(r, "session")
+	if err != nil {
+		log.Println(err)
+	}
 	CurrentUser := session.Values["CurrentUser"].(User)
-	projectID, _ := strconv.Atoi(r.FormValue("projectID"))
+	projectID, err := strconv.Atoi(r.FormValue("projectID"))
+	if err != nil {
+		log.Println(err)
+	}
 	boardID, err := strconv.Atoi(r.FormValue("boardID"))
 	taskName := r.FormValue("taskName")
 	taskDescription := r.FormValue("taskDescription")
