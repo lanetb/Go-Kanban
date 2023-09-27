@@ -273,8 +273,10 @@ form label{
 
 .task:hover{
     border: 2px solid var(--accent);
+    scale: .96;
     cursor: pointer;
     width: auto;
+    margin-bottom: 1px;
 }
 
 .is-dragging{

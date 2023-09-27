@@ -25,7 +25,6 @@ func main() {
 		session, _ := store.Get(r, "session")
 		var NewUser User
 		if session.Values["CurrentUser"] == nil {
-			log.Println("herio 1")
 			session.Values["CurrentUser"] = NewUser
 			err := session.Save(r, w)
 			if err != nil {
