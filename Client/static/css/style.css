@@ -1,11 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Handlee&family=Source+Code+Pro:wght@600&display=swap');
 :root{
-    --text: #e1efff;
-    --background: #325A8B;
-    --primary: #3E72B2;
-    --secondary: #5C8CC7;
-    --tertiary: #81A6D5;
-    --accent: #B2E6C5;
+    --text: #EEEEE7;
+    --background: #2C3719;
+    --primary: #92663D;
+    --secondary: #87998B;
+    --tertiary: #B0B52D;
+    --accent: #77e69f;
+
+    --text: #F8F7F5;
+    --background: #2E4374;
+    --primary: #4B527E;
+    --secondary: #4B527E;
+    --tertiary: #7C81AD;
+    --accent: #E5C3A6;
+
+    --1text: #070501;
+    --1background: #0F2C59;
+    --1primary: #EADBC8;
+    --1secondary: #F8F0E5;
+    --1tertiary: #DAC0A3;
+    --1accent: #3586ff;
 }
 
 body{
@@ -218,7 +232,7 @@ form label{
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--primary);
+    background-color: var(--secondary);
     height: 25px;
     padding: 10px;
     border-radius: 10px;
@@ -249,7 +263,7 @@ form label{
     gap: 5px;
 }
 
-.task:last-child{
+.tasks:last-child{
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
 }
@@ -259,7 +273,7 @@ form label{
     flex-direction: column;
     justify-content: space-between;
     align-items: left;
-    background-color: var(--primary);
+    background-color: var(--secondary);
     border-radius: 2px;
     padding: 10px;
     margin-top: 1px;
