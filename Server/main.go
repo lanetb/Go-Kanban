@@ -68,6 +68,8 @@ func main() {
 	http.HandleFunc("/createTask/", CreateTaskHandler)
 	http.HandleFunc("/returnToDash/", ReturnToDashHandler)
 	http.HandleFunc("/signout/", SignoutHandler)
+	http.HandleFunc("/deleteProject/", DeleteProjectHandler)
+	http.HandleFunc("/deleteBoard/", DeleteBoardHandler)
 
 	ConnectToDB()
 

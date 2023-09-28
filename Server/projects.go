@@ -283,3 +283,118 @@ func GetTasks(w http.ResponseWriter ,r *http.Request, projectID int) {
 	session.Values["CurrentUser"] = CurrentUser
 	log.Println("Tasks retrieved")
 }
+
+func DeleteProjectHandler(w http.ResponseWriter ,r *http.Request){
+	log.Println("Deleting project...")
+	r.ParseForm()
+	session, _ := store.Get(r, "session")
+	CurrentUser := session.Values["CurrentUser"].(User)
+	projectID, err := strconv.Atoi(r.FormValue("projectID"))
+	if err != nil {
+		log.Println(err)
+	}
+	// delete project from database
+	stmt, err := db.Prepare("DELETE FROM Project WHERE ProjectID=?")
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = stmt.Exec(projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	stmt, err = db.Prepare("DELETE FROM Board WHERE ProjectID=?")
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = stmt.Exec(projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	stmt, err = db.Prepare("DELETE FROM Task WHERE ProjectID=?")
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = stmt.Exec(projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	// delete project from session
+	delete(CurrentUser.Projects, projectID)
+	session.Values["CurrentUser"] = CurrentUser
+	session.Save(r, w)
+	log.Println("Project deleted")
+	tmpl, _ := template.ParseFiles("../Client/html/dashdeleteactive.html")
+	data := struct{
+		User User 
+		Projects map[int]Project
+	}{
+		User: session.Values["CurrentUser"].(User),
+		Projects: session.Values["CurrentUser"].(User).Projects,
+	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+
+}
+
+func DeleteBoardHandler(w http.ResponseWriter ,r *http.Request){
+	log.Println("Deleting board...")
+	r.ParseForm()
+	session, _ := store.Get(r, "session")
+	CurrentUser := session.Values["CurrentUser"].(User)
+	projectID, err := strconv.Atoi(r.FormValue("projectID"))
+	log.Println("ProjectID: ", projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	boardID, err := strconv.Atoi(r.FormValue("boardID"))
+	log.Println("BoardID: ", boardID)
+	if err != nil {
+		log.Println(err)
+	}
+	// delete board from database
+	stmt, err := db.Prepare("DELETE FROM Board WHERE BoardID=? AND ProjectID=?")
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = stmt.Exec(boardID ,projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	stmt, err = db.Prepare("DELETE FROM Task WHERE BoardID=? AND ProjectID=?")
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = stmt.Exec(boardID ,projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	// delete board from session
+	project := CurrentUser.Projects[projectID]
+	for i, board := range project.Boards{
+		if board.ID == boardID{
+			project.Boards = append(project.Boards[:i], project.Boards[i+1:]...)
+		}
+	}
+	CurrentUser.Projects[projectID] = project
+	session.Values["CurrentUser"] = CurrentUser
+	session.Save(r, w)
+	log.Println("Board deleted")
+	tmpl, _ := template.ParseFiles("../Client/html/projboarddelete.html")
+	data := struct{
+		ProjectName string
+		User User
+		Project Project
+		Boards []Board
+	}{
+		ProjectName: CurrentUser.Projects[projectID].Name,
+		User: session.Values["CurrentUser"].(User),
+		Project: session.Values["CurrentUser"].(User).Projects[projectID],
+		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
+	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+}
