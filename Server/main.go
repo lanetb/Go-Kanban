@@ -22,17 +22,16 @@ func main() {
 	gob.Register(Task{})
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
-		session, _ := store.Get(r, "session")
-		var NewUser User
-		if session.Values["CurrentUser"] == nil {
-			session.Values["CurrentUser"] = NewUser
-			err := session.Save(r, w)
-			if err != nil {
-				log.Println(err)
-			}
+		if len(r.Cookies()) == 0 {
+			log.Println("No cookies")
 			tmpl := template.Must(template.ParseFiles("../Client/html/index.html"))
 			tmpl.Execute(w, nil)
 		} else {
+			log.Println("Cookies")
+			session, err := store.Get(r, "session")
+			if err != nil {
+				log.Println(err)
+			}
 			log.Println(session.Values["CurrentUser"].(User).Username)
 			log.Println(session.Values["CurrentUser"].(User).Projects)
 				data := struct{
@@ -67,6 +66,8 @@ func main() {
 	http.HandleFunc("/createProject/", CreateProjectHandler)
 	http.HandleFunc("/createBoard/", CreateBoardHandler)
 	http.HandleFunc("/createTask/", CreateTaskHandler)
+	http.HandleFunc("/returnToDash/", ReturnToDashHandler)
+	http.HandleFunc("/signout/", SignoutHandler)
 
 	ConnectToDB()
 
