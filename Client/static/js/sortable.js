@@ -1,5 +1,5 @@
 htmx.onLoad(function (content) {
-    const draggables = content.querySelectorAll('.task');
+    const draggables = content.querySelectorAll('.task-container');
     const droppables = content.querySelectorAll('.tasks');
 
     draggables.forEach((task) => {
@@ -27,7 +27,7 @@ htmx.onLoad(function (content) {
     });
 
     const insertAboveTask = (zone, mouseY) => {
-        const els = zone.querySelectorAll(".task:not(.is-dragging)");
+        const els = zone.querySelectorAll(".task-container:not(.is-dragging)");
 
         let closestTask = null;
         let closestOffset = Number.NEGATIVE_INFINITY;
@@ -36,7 +36,7 @@ htmx.onLoad(function (content) {
             const { top } = task.getBoundingClientRect();
 
             const offset = mouseY - top;
-
+            console.log(offset)
             if (offset < 0 && offset > closestOffset) {
                 closestOffset = offset;
                 closestTask = task;
