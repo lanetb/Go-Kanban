@@ -1,12 +1,23 @@
+
 htmx.onLoad(function (content) {
     const draggables = content.querySelectorAll('.task-container');
     const droppables = content.querySelectorAll('.tasks');
+    const board = content.querySelector('.board-container');
 
     draggables.forEach((task) => {
         task.addEventListener("dragstart", () => {
             task.classList.add("is-dragging");
         });
         task.addEventListener("dragend", () => {
+            console.log(`{ "boardID": "${currentzone.id}", "projectID": "${board.id}", "taskID": "${task.id}" }`);
+            htmx.ajax('POST', '/onDragEnd/', {
+                swap: 'none',
+                values: {
+                    boardID: currentzone.id,
+                    projectID: board.id,
+                    taskID: task.id
+                }
+            });
             task.classList.remove("is-dragging");
         });
     });
@@ -23,6 +34,7 @@ htmx.onLoad(function (content) {
             } else {
                 zone.insertBefore(curTask, bottomTask);
             }
+            currentzone = zone;
         });
     });
 
@@ -36,7 +48,6 @@ htmx.onLoad(function (content) {
             const { top } = task.getBoundingClientRect();
 
             const offset = mouseY - top;
-            console.log(offset)
             if (offset < 0 && offset > closestOffset) {
                 closestOffset = offset;
                 closestTask = task;
@@ -45,4 +56,11 @@ htmx.onLoad(function (content) {
 
         return closestTask;
     };
+
+    function parse(str) {
+        var args = [].slice.call(arguments, 1),
+            i = 0;
+
+        return str.replace(/%s/g, () => args[i++]);
+    }
 });

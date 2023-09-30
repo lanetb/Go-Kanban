@@ -398,3 +398,43 @@ func DeleteBoardHandler(w http.ResponseWriter ,r *http.Request){
 		log.Println(err)
 	}
 }
+
+func HandleDragEnd(w http.ResponseWriter ,r *http.Request){
+	log.Println("Handling drag end...")
+	r.ParseForm()
+	session, _ := store.Get(r, "session")
+	CurrentUser := session.Values["CurrentUser"].(User)
+	log.Println(r.FormValue("projectID"))
+	projectID, err := strconv.Atoi(r.FormValue("projectID"))
+	if err != nil {
+		log.Println(err)
+	}
+	boardID, err := strconv.Atoi(r.FormValue("boardID"))
+	if err != nil {
+		log.Println(err)
+	}
+	taskID, err := strconv.Atoi(r.FormValue("taskID"))
+	if err != nil {
+		log.Println(err)
+	}
+	taskType := r.FormValue("taskType")
+	log.Println("ProjectID: ", projectID)
+	log.Println("BoardID: ", boardID)
+	log.Println("TaskID: ", taskID)
+	log.Println("TaskType: ", taskType)
+	// update task in database
+	stmt, err := db.Prepare("UPDATE Task SET BoardID=? WHERE TaskID=? AND ProjectID=?")
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = stmt.Exec(boardID, taskID, projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	// update task in session
+	project := CurrentUser.Projects[projectID]
+	CurrentUser.Projects[projectID] = project
+	session.Values["CurrentUser"] = CurrentUser
+	session.Save(r, w)
+	log.Println("Task updated")
+}

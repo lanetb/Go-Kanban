@@ -70,6 +70,7 @@ func main() {
 	http.HandleFunc("/signout/", SignoutHandler)
 	http.HandleFunc("/deleteProject/", DeleteProjectHandler)
 	http.HandleFunc("/deleteBoard/", DeleteBoardHandler)
+	http.HandleFunc("/onDragEnd/", HandleDragEnd)
 
 	ConnectToDB()
 

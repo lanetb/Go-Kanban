@@ -28,7 +28,7 @@
     <div class="boards-container">
         <div class="boards">
             {{range $board := .Boards}}
-            <div class="board-container">
+            <div class="board-container" id="{{$board.ProjectID}}">
                 <button data-board-delete-btn class="delete-board-btn delete-notactive" hx-post="/deleteBoard/" hx-target="#body" hx-vals='{"projectID": "{{$board.ProjectID}}", "boardID":"{{$board.ID}}"}' hx-confirm="Are you sure you want to delete this board? All tasks will be lost with no way of recovering them.">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
                         <path
@@ -52,9 +52,9 @@
                             </button>
                         </div>
                     </div>
-                    <div class="tasks">
+                    <div class="tasks" value="{{$board.ID}}" id='{{$board.ID}}'>
                         {{range $task := .Tasks}}
-                        <div draggable="true" class="task-container">
+                        <div draggable="true" id="{{$task.ID}}" class="task-container">
                             <button data-task-delete-btn class="delete-task-btn delete-notactive" hx-post="/deleteTask/" hx-target="#body"
                                 hx-vals='{"projectID": "{{$board.ProjectID}}", "boardID":"{{$board.ID}}", "taskID": "{{$task.ID}}"}'
                                 hx-confirm="Are you sure you want to delete this task? There is no way of recovering it.">
