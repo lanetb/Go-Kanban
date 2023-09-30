@@ -196,7 +196,6 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Opening project...")
 	r.ParseForm()
-	log.Println("Form: ", r.Form)
 	val := r.FormValue("projectID")
 	projectName := r.FormValue("projectName")
 	//convert projectID to int
@@ -206,11 +205,8 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("Opening project: ", projectID)
 	GetBoards(w, r, projectID)
 	GetTasks(w, r, projectID)
-	log.Println("Project opened: ", projectID)
-	log.Println("Project name: ", projectName)
 
 	tmpl, _ := template.ParseFiles("../Client/html/project.html")
 	session.Values["CurrentUser"] = CurrentUser
@@ -251,7 +247,6 @@ func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int) {
 		}
 		tempBoard = append(tempBoard, board)
 	}
-	log.Println(tempBoard)
 	CurrProject.Boards = tempBoard
 	CurrentUser.Projects[projectID] = CurrProject
 	session.Values["CurrentUser"] = CurrentUser
@@ -404,7 +399,6 @@ func HandleDragEnd(w http.ResponseWriter ,r *http.Request){
 	r.ParseForm()
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
-	log.Println(r.FormValue("projectID"))
 	projectID, err := strconv.Atoi(r.FormValue("projectID"))
 	if err != nil {
 		log.Println(err)
@@ -417,11 +411,6 @@ func HandleDragEnd(w http.ResponseWriter ,r *http.Request){
 	if err != nil {
 		log.Println(err)
 	}
-	taskType := r.FormValue("taskType")
-	log.Println("ProjectID: ", projectID)
-	log.Println("BoardID: ", boardID)
-	log.Println("TaskID: ", taskID)
-	log.Println("TaskType: ", taskType)
 	// update task in database
 	stmt, err := db.Prepare("UPDATE Task SET BoardID=? WHERE TaskID=? AND ProjectID=?")
 	if err != nil {
