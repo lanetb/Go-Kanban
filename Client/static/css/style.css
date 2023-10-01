@@ -300,10 +300,11 @@ form label{
     background-color: var(--primary);
     border: 2px solid rgba(0 ,0, 0, 0);
     width: calc(100% - 4px);
+    border-radius: 10px;
 }
 
 .boards-container{
-    height: calc(100vh - 125px);
+    height: calc(100vh - 123px);
 }
 
 .boards{
@@ -314,8 +315,11 @@ form label{
     color: var(--text);
     gap: 16px;
     padding: 24px 32px;
-    overflow: scroll;
-    height: calc(100vh - 125px);
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: calc(100vh - 123px);
+    scrollbar-color: var(--accent) var(--tertiary);
+    scrollbar-width: thin;
 }
 
 .board{
@@ -325,7 +329,7 @@ form label{
     gap: 12px;
     background-color: var(--tertiary);
     padding: 7px;
-    width: 300px;
+    width: 310px;
     min-height: 75px;
     border-radius: 15px;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.5);
@@ -343,7 +347,6 @@ form label{
     border-radius: 10px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
-    width: 100% - 20px;
 }
 
 .board-btns{
@@ -386,6 +389,12 @@ form label{
     min-height: 25px;
     gap: 5px;
     margin-top: -7px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    overflow-x: unset;
+    scrollbar-color: var(--accent) #6d7197;
+    scrollbar-width: thin;
+    scrollbar-gutter: auto;
 }
 
 .task{
@@ -394,17 +403,13 @@ form label{
     justify-content: space-between;
     align-items: left;
     background-color: inherit;
-    border-radius: 2px;
     padding: 10px;
     flex-grow: 0;
     border: 2px solid rgba(0 ,0, 0, 0);
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-radius: 10px;
 }
-.task-container:last-child{
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
+
+
 .task h3, p{
     margin-top: 0;
     margin-left: 0;
@@ -442,10 +447,11 @@ form label{
 }
 
 .is-dragging{
-    scale: 1.04;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.5);
     background-color: var(--accent);
     color: black;
+    border-radius: 10px;
+    overflow-block: visible;
 }
 
 .code{
