@@ -39,7 +39,7 @@
                     <div class="board-head">
                         <h2>{{$board.Name}}</h2>
                         <div class="board-btns">
-                            <button data-modal-target="#modal{{$board.ID}}" value="{{$board.ID}}">
+                            <button data-modal-target="#modal{{$board.ID}}" value="{{$board.ID}}" class="add-task">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
                                     <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
                                 </svg>
@@ -70,6 +70,10 @@
                                 <p class="type code">{{$task.Type}}</p>
                                 {{else if eq $task.Type "UI/UX"}}
                                 <p class="type UI">{{$task.Type}}</p>
+                                {{else if eq $task.Type "Database"}}
+                                <p class="type db">{{$task.Type}}</p>
+                                {{else if eq $task.Type "Bug"}}
+                                <p class="type bug">{{$task.Type}}</p>
                                 {{end}}
                             </div>
                         </div>
@@ -94,6 +98,8 @@
                                 <select name="taskType" id="taskType">
                                     <option value="Code">Code</option>
                                     <option value="UI/UX">UI/UX</option>
+                                    <option value="Database">Database</option>
+                                    <option value="Bug">Bug</option>
                                 </select>
                                 <button type="submit">Create Task</button>
                             </form>

@@ -148,11 +148,9 @@ form label{
     font-size: 37px;
     margin-top: -10px;
     margin-bottom: 0px;
-    
 }
 
 .nav-links{
-
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -184,10 +182,12 @@ form label{
 .project-board{
     display: flex;
     flex-direction: row;
-    justify-content: left;
+    justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    align-content: space-evenly;
     padding: 20px;
+    width: calc(100% - 40px);
 }
 
 .project{
@@ -207,6 +207,7 @@ form label{
     flex-wrap: wrap;
     padding: 10px;
     border: 3px solid rgba(0 ,0, 0, 0);
+    align-content: center;
 }
 
 .project h2{
@@ -225,10 +226,6 @@ form label{
 
 .project-board-container{
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin: auto;
-    width: 100%;
 }
 
 .delete-button-projects{
@@ -262,7 +259,6 @@ form label{
   50% { transform: rotate(1deg); }
 }
 
-
 .delete-board-btn{
     background-color: lightcoral;
     border-color: #070501;
@@ -288,6 +284,16 @@ form label{
     z-index: 10;
 }
 
+.delete-task-btn:hover{
+    background-color: red;
+    cursor: pointer;
+}
+
+.delete-task-toggle:hover{
+    fill: var(--accent);
+    cursor: pointer;
+}
+
 .task-container{
     margin: auto;
     margin-top: 1px;
@@ -307,9 +313,7 @@ form label{
     align-items: flex-start;
     color: var(--text);
     gap: 16px;
-
     padding: 24px 32px;
-
     overflow: scroll;
     height: calc(100vh - 125px);
 }
@@ -364,6 +368,12 @@ form label{
     border-radius: 100%;
     margin: auto;
     scale: .9;
+}
+
+.add-task:hover{
+    fill: var(--accent);
+    color: var(--accent);
+    cursor: pointer; 
 }
 
 .board-head h2{
@@ -444,6 +454,14 @@ form label{
 
 .UI{
     background-color: lightskyblue;
+}
+
+.bug{
+    background-color: lightcoral;
+}
+
+.db{
+    background-color: #FCC981;
 }
 
 .modal{

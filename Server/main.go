@@ -32,8 +32,6 @@ func main() {
 			if err != nil {
 				log.Println(err)
 			}
-			log.Println(session.Values["CurrentUser"].(User).Username)
-			log.Println(session.Values["CurrentUser"].(User).Projects)
 				data := struct{
 					CurrUser User 
 					Projects map[int]Project
