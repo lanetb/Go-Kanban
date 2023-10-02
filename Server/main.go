@@ -73,5 +73,5 @@ func main() {
 
 	ConnectToDB()
 
-	log.Fatal(http.ListenAndServe(":8000", context.ClearHandler(http.DefaultServeMux)))
+	log.Fatal(http.ListenAndServe(":8080", context.ClearHandler(http.DefaultServeMux)))
 }
