@@ -394,6 +394,65 @@ func DeleteBoardHandler(w http.ResponseWriter ,r *http.Request){
 	}
 }
 
+func DeleteTaskHandler(w http.ResponseWriter ,r *http.Request){
+	log.Println("Deleting task...")
+	r.ParseForm()
+	session, _ := store.Get(r, "session")
+	CurrentUser := session.Values["CurrentUser"].(User)
+	projectID, err := strconv.Atoi(r.FormValue("projectID"))
+	if err != nil {
+		log.Println(err)
+	}
+	boardID, err := strconv.Atoi(r.FormValue("boardID"))
+	if err != nil {
+		log.Println(err)
+	}
+	taskID, err := strconv.Atoi(r.FormValue("taskID"))
+	if err != nil {
+		log.Println(err)
+	}
+	// delete task from database
+	stmt, err := db.Prepare("DELETE FROM Task WHERE TaskID=? AND BoardID=? AND ProjectID=?")
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = stmt.Exec(taskID, boardID, projectID)
+	if err != nil {
+		log.Println(err)
+	}
+	// delete task from session
+	project := CurrentUser.Projects[projectID]
+	for i, board := range project.Boards{
+		if board.ID == boardID{
+			for j, task := range board.Tasks{
+				if task.ID == taskID{
+					project.Boards[i].Tasks = append(project.Boards[i].Tasks[:j], project.Boards[i].Tasks[j+1:]...)
+				}
+			}
+		}
+	}
+	CurrentUser.Projects[projectID] = project
+	session.Values["CurrentUser"] = CurrentUser
+	session.Save(r, w)
+	log.Println("Task deleted")
+	tmpl, _ := template.ParseFiles("../Client/html/project.html")
+	data := struct{
+		ProjectName string
+		User User
+		Project Project
+		Boards []Board
+	}{
+		ProjectName: CurrentUser.Projects[projectID].Name,
+		User: session.Values["CurrentUser"].(User),
+		Project: session.Values["CurrentUser"].(User).Projects[projectID],
+		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
+	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 func HandleDragEnd(w http.ResponseWriter ,r *http.Request){
 	log.Println("Handling drag end...")
 	r.ParseForm()

@@ -1,23 +1,19 @@
 htmx.onLoad(function (content) {
-    const deleteTaskButtontoggle = document.getElementById('delete-task-toggle')
-    const deleteTaskButtons = content.querySelectorAll('[data-task-delete-btn]')
-    const Tasks = content.querySelectorAll('[data-task]')
+    const deleteTaskButtonToggles = content.querySelectorAll('[data-delete-task-toggle]')
 
-    (deleteTaskButtons.parentNode.parentNode.parentNode)
-    deleteTaskButtontoggle.addEventListener('click', () => {
-        deleteTaskButtons.forEach(button => {
-            if (button.classList.contains('delete-notactive')) {
-               button.classList.remove('delete-notactive')
-            } else {
-                button.classList.add('delete-notactive')
-            }
-        });
-        Tasks.forEach(task => {
-            if (task.classList.contains('deleteable')) {
-                task.classList.remove('deleteable')
-            } else {
-                task.classList.add('deleteable')
-            }
+    deleteTaskButtonToggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const board = toggle.closest('[data-board]');
+            const deleteTaskButtons = board.querySelectorAll('[data-task-delete-btn]');
+            const tasks = board.querySelectorAll('[data-task]');
+
+            deleteTaskButtons.forEach(button => {
+                button.classList.toggle('delete-notactive', !button.classList.contains('delete-notactive'));
+            });
+
+            tasks.forEach(task => {
+                task.classList.toggle('deleteable', !task.classList.contains('deleteable'));
+            });
         });
     });
 });
