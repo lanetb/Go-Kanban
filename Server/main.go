@@ -22,16 +22,14 @@ func main() {
 	gob.Register(Task{})
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
-		if len(r.Cookies()) == 0 {
+		if len(r.Cookies()) == 0 || r.Cookies() == nil {
 			log.Println("No cookies")
 			tmpl := template.Must(template.ParseFiles("../Client/html/index.html"))
 			tmpl.Execute(w, nil)
 		} else {
 			log.Println("Cookies")
 			session, err := store.Get(r, "session")
-			if err != nil {
-				log.Println(err)
-			}
+			handleError(err, "Error getting session")
 				data := struct{
 					CurrUser User 
 					Projects map[int]Project

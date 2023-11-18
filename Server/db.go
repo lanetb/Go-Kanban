@@ -14,15 +14,11 @@ func ConnectToDB(){
 	log.Println("Connecting to database...")
 	err := godotenv.Load()
 
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	handleError(err, "Error loading .env file")
 
     db, err = sql.Open("mysql", os.Getenv("DSN"))
 
-    if err != nil {
-        log.Fatalf("failed to connect: %v", err)
-    }
+    handleError(err, "Error opening database")
 
     if err := db.Ping(); err != nil {
         log.Fatalf("failed to ping: %v", err)

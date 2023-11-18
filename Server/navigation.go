@@ -2,15 +2,12 @@ package main
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 )
 
 func ReturnToDashHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, "session")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error getting session")
 	if session.Values["CurrentUser"] == nil {
 		tmpl := template.Must(template.ParseFiles("../Client/html/index.html"))
 		tmpl.Execute(w, nil)
@@ -29,15 +26,10 @@ func ReturnToDashHandler(w http.ResponseWriter, r *http.Request) {
 
 func SignoutHandler(w http.ResponseWriter, r *http.Request){
 	session, err := store.Get(r, "session")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error getting session")
 	session.Values["CurrentUser"] = nil
 	session.Options.MaxAge = -1
-	err = session.Save(r, w)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(session.Save(r, w), "Error saving session")
 	tmpl := template.Must(template.ParseFiles("../Client/html/index.html"))
 	tmpl.Execute(w, nil)
 }

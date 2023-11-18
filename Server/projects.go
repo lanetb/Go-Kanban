@@ -13,11 +13,8 @@ import (
 func GetProjects(w http.ResponseWriter ,r *http.Request, session *sessions.Session) User{
 	// type assert to User
 	CurrentUser := session.Values["CurrentUser"].(User)
-	log.Println("Retrieving projects...")
 	rows, err := db.Query("SELECT * FROM Project WHERE UserID=?", CurrentUser.ID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error getting projects")
 	projects := make(map[int]Project)
 	for rows.Next(){
 		var project Project
@@ -41,17 +38,11 @@ func CreateProjectHandler(w http.ResponseWriter, r *http.Request){
 	projectName := r.FormValue("projectName")
 	// insert project into database
 	stmt, err := db.Prepare("INSERT INTO Project (UserID, ProjectName) VALUES (?, ?)")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	res, err := stmt.Exec(CurrentUser.ID, projectName)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	id, err := res.LastInsertId()
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error getting last insert id")
 	BuildBoard(session, w, r, int(id), CurrentUser, "Backlog")
 	BuildBoard(session, w, r, int(id), CurrentUser, "In Progress")
 	BuildBoard(session, w, r, int(id), CurrentUser, "Finished")
@@ -60,7 +51,6 @@ func CreateProjectHandler(w http.ResponseWriter, r *http.Request){
 	CurrentUser.Projects[int(id)] = Project{ID: int(id), UserID: CurrentUser.ID, Name: projectName}
 	session.Values["CurrentUser"] = CurrentUser
 	session.Save(r, w)
-	log.Println("Project created")
 
 	tmpl, _ := template.ParseFiles("../Client/html/dashboard.html")
 	data := struct{
@@ -71,9 +61,7 @@ func CreateProjectHandler(w http.ResponseWriter, r *http.Request){
 		Projects: session.Values["CurrentUser"].(User).Projects,
 	}
 	err = tmpl.Execute(w, data)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing template")
 }
 
 func CreateBoardHandler(w http.ResponseWriter, r *http.Request){
@@ -84,9 +72,7 @@ func CreateBoardHandler(w http.ResponseWriter, r *http.Request){
 	projectID, err := strconv.Atoi(r.FormValue("projectID"))
 	boardName := r.FormValue("boardName")
 	log.Println("ProjectID: ", projectID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting projectID to int")
 	// insert board into database
 	BuildBoard(session, w, r, projectID, CurrentUser, boardName)
 	tmpl, _ := template.ParseFiles("../Client/html/project.html")
@@ -100,24 +86,16 @@ func CreateBoardHandler(w http.ResponseWriter, r *http.Request){
 		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
 	}
 	err = tmpl.Execute(w, data)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing template")
 }
 
 func BuildBoard(session *sessions.Session, w http.ResponseWriter, r *http.Request, projectID int, CurrentUser User, boardName string) {
 	stmt, err := db.Prepare("INSERT INTO Board (ProjectID, UserID, BoardName) VALUES (?, ?, ?)")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	res, err := stmt.Exec(projectID, CurrentUser.ID, boardName)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	id, err := res.LastInsertId()
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error getting last insert id")
 	log.Println("Board created")
 	// update session value
 	project := CurrentUser.Projects[projectID]
@@ -132,36 +110,24 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 	log.Println("Creating task...")
 	r.ParseForm()
 	session, err := store.Get(r, "session")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error getting session")
 	CurrentUser := session.Values["CurrentUser"].(User)
 	projectID, err := strconv.Atoi(r.FormValue("projectID"))
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting projectID to int")
 	boardID, err := strconv.Atoi(r.FormValue("boardID"))
 	taskName := r.FormValue("taskName")
 	taskDescription := r.FormValue("taskDescription")
 	taskType := r.FormValue("taskType")
 	log.Println("ProjectID: ", projectID)
 	log.Println("BoardID: ", boardID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting boardID to int")
 	// insert task into database
 	stmt, err := db.Prepare("INSERT INTO Task (BoardID, ProjectID, UserID, TaskName, Description, Type) VALUES (?, ?, ?, ?, ?, ?)")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	res, err := stmt.Exec(boardID, projectID, CurrentUser.ID, taskName, taskDescription, taskType)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	id, err := res.LastInsertId()
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error getting last insert id")
 	log.Println("Task created")
 	// update session value
 	project := CurrentUser.Projects[projectID]
@@ -188,9 +154,7 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
 	}
 	err = tmpl.Execute(w, data)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing template")
 }
 
 func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
@@ -202,9 +166,7 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	projectID, err := strconv.Atoi(val)
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting projectID to int")
 	GetBoards(w, r, projectID)
 	GetTasks(w, r, projectID)
 
@@ -223,9 +185,7 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	}
 	session.Save(r, w)
 	err = tmpl.Execute(w, data)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing template")
 	log.Println("Project opened")
 }
 
@@ -236,9 +196,7 @@ func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int) {
 	CurrentUser := session.Values["CurrentUser"].(User)
 	CurrProject := CurrentUser.Projects[projectID]
 	var tempBoard []Board
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error getting boards")
 	for rows.Next(){
 		var board Board
 		err := rows.Scan(&board.ID, &board.ProjectID, &board.UserID, &board.Name)
@@ -345,26 +303,16 @@ func DeleteBoardHandler(w http.ResponseWriter ,r *http.Request){
 	}
 	boardID, err := strconv.Atoi(r.FormValue("boardID"))
 	log.Println("BoardID: ", boardID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting boardID to int")
 	// delete board from database
 	stmt, err := db.Prepare("DELETE FROM Board WHERE BoardID=? AND ProjectID=?")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	_, err = stmt.Exec(boardID ,projectID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	stmt, err = db.Prepare("DELETE FROM Task WHERE BoardID=? AND ProjectID=?")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	_, err = stmt.Exec(boardID ,projectID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	// delete board from session
 	project := CurrentUser.Projects[projectID]
 	for i, board := range project.Boards{
@@ -389,9 +337,7 @@ func DeleteBoardHandler(w http.ResponseWriter ,r *http.Request){
 		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
 	}
 	err = tmpl.Execute(w, data)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing template")
 }
 
 func DeleteTaskHandler(w http.ResponseWriter ,r *http.Request){
@@ -400,26 +346,16 @@ func DeleteTaskHandler(w http.ResponseWriter ,r *http.Request){
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
 	projectID, err := strconv.Atoi(r.FormValue("projectID"))
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting projectID to int")
 	boardID, err := strconv.Atoi(r.FormValue("boardID"))
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting boardID to int")
 	taskID, err := strconv.Atoi(r.FormValue("taskID"))
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting taskID to int")
 	// delete task from database
 	stmt, err := db.Prepare("DELETE FROM Task WHERE TaskID=? AND BoardID=? AND ProjectID=?")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	_, err = stmt.Exec(taskID, boardID, projectID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	// delete task from session
 	project := CurrentUser.Projects[projectID]
 	for i, board := range project.Boards{
@@ -448,9 +384,7 @@ func DeleteTaskHandler(w http.ResponseWriter ,r *http.Request){
 		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
 	}
 	err = tmpl.Execute(w, data)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing template")
 }
 
 func HandleDragEnd(w http.ResponseWriter ,r *http.Request){
@@ -459,26 +393,16 @@ func HandleDragEnd(w http.ResponseWriter ,r *http.Request){
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
 	projectID, err := strconv.Atoi(r.FormValue("projectID"))
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting projectID to int")
 	boardID, err := strconv.Atoi(r.FormValue("boardID"))
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting boardID to int")
 	taskID, err := strconv.Atoi(r.FormValue("taskID"))
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting taskID to int")
 	// update task in database
 	stmt, err := db.Prepare("UPDATE Task SET BoardID=? WHERE TaskID=? AND ProjectID=?")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	_, err = stmt.Exec(boardID, taskID, projectID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	// update task in session
 	project := CurrentUser.Projects[projectID]
 	CurrentUser.Projects[projectID] = project
