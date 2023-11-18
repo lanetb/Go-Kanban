@@ -1,4 +1,4 @@
-package main;
+package main
 
 import (
 	"log"
@@ -6,6 +6,8 @@ import (
 
 func handleError(err error, msg string) {
 	if err != nil {
+		log.Print("ERROR: ")
+		log.Println(err)
 		log.Fatal(msg)
 	}
 }

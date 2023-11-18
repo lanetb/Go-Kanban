@@ -26,7 +26,6 @@ func GetProjects(w http.ResponseWriter ,r *http.Request, session *sessions.Sessi
 	}
 	CurrentUser.Projects = projects // fix type assertion error
 	session.Values["CurrentUser"] = CurrentUser // update session value
-	log.Println("Projects retrieved")
 	return CurrentUser
 }	
 
@@ -65,7 +64,6 @@ func CreateProjectHandler(w http.ResponseWriter, r *http.Request){
 }
 
 func CreateBoardHandler(w http.ResponseWriter, r *http.Request){
-	log.Println("Creating board...")
 	r.ParseForm()
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
@@ -77,10 +75,12 @@ func CreateBoardHandler(w http.ResponseWriter, r *http.Request){
 	BuildBoard(session, w, r, projectID, CurrentUser, boardName)
 	tmpl, _ := template.ParseFiles("../Client/html/project.html")
 	data := struct{
+		Project Project
 		ProjectName string
 		User User
 		Boards []Board
 	}{
+		Project: session.Values["CurrentUser"].(User).Projects[projectID],
 		ProjectName: CurrentUser.Projects[projectID].Name,
 		User: session.Values["CurrentUser"].(User),
 		Boards: session.Values["CurrentUser"].(User).Projects[projectID].Boards,
@@ -96,18 +96,15 @@ func BuildBoard(session *sessions.Session, w http.ResponseWriter, r *http.Reques
 	handleError(err, "Error executing statement")
 	id, err := res.LastInsertId()
 	handleError(err, "Error getting last insert id")
-	log.Println("Board created")
 	// update session value
 	project := CurrentUser.Projects[projectID]
 	project.Boards = append(project.Boards, Board{ID: int(id), ProjectID: projectID, UserID: CurrentUser.ID, Name: boardName})
 	CurrentUser.Projects[projectID] = project
 	session.Values["CurrentUser"] = CurrentUser
 	session.Save(r, w)
-	log.Println("Board created")
 }
 
 func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
-	log.Println("Creating task...")
 	r.ParseForm()
 	session, err := store.Get(r, "session")
 	handleError(err, "Error getting session")
@@ -118,8 +115,6 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 	taskName := r.FormValue("taskName")
 	taskDescription := r.FormValue("taskDescription")
 	taskType := r.FormValue("taskType")
-	log.Println("ProjectID: ", projectID)
-	log.Println("BoardID: ", boardID)
 	handleError(err, "Error converting boardID to int")
 	// insert task into database
 	stmt, err := db.Prepare("INSERT INTO Task (BoardID, ProjectID, UserID, TaskName, Description, Type) VALUES (?, ?, ?, ?, ?, ?)")
@@ -128,7 +123,6 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 	handleError(err, "Error executing statement")
 	id, err := res.LastInsertId()
 	handleError(err, "Error getting last insert id")
-	log.Println("Task created")
 	// update session value
 	project := CurrentUser.Projects[projectID]
 	for i, board := range project.Boards{
@@ -139,7 +133,6 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 	CurrentUser.Projects[projectID] = project
 	session.Values["CurrentUser"] = CurrentUser
 	session.Save(r, w)
-	log.Println("Task created")
 	// redirect to project page
 	tmpl, _ := template.ParseFiles("../Client/html/project.html")
 	data := struct{
@@ -188,7 +181,6 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 }
 
 func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int) {
-	log.Println("Retrieving boards...")
 	rows, err := db.Query("SELECT * FROM Board WHERE ProjectID=?", projectID)
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
@@ -205,7 +197,6 @@ func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int) {
 	CurrentUser.Projects[projectID] = CurrProject
 	session.Values["CurrentUser"] = CurrentUser
 	session.Save(r, w)
-	log.Println("Boards retrieved")
 }
 
 func GetTasks(w http.ResponseWriter ,r *http.Request, projectID int) {
@@ -226,11 +217,9 @@ func GetTasks(w http.ResponseWriter ,r *http.Request, projectID int) {
 	}
 	CurrentUser.Projects[projectID] = CurrProject
 	session.Values["CurrentUser"] = CurrentUser
-	log.Println("Tasks retrieved")
 }
 
 func DeleteProjectHandler(w http.ResponseWriter ,r *http.Request){
-	log.Println("Deleting project...")
 	r.ParseForm()
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
