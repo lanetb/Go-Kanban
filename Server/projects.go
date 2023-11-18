@@ -158,7 +158,6 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 }
 
 func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
-	log.Println("Opening project...")
 	r.ParseForm()
 	val := r.FormValue("projectID")
 	projectName := r.FormValue("projectName")
@@ -186,7 +185,6 @@ func OpenProjectHandler(w http.ResponseWriter, r *http.Request){
 	session.Save(r, w)
 	err = tmpl.Execute(w, data)
 	handleError(err, "Error executing template")
-	log.Println("Project opened")
 }
 
 func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int) {
@@ -200,9 +198,7 @@ func GetBoards(w http.ResponseWriter ,r *http.Request, projectID int) {
 	for rows.Next(){
 		var board Board
 		err := rows.Scan(&board.ID, &board.ProjectID, &board.UserID, &board.Name)
-		if err != nil {
-			log.Println(err)
-		}
+		handleError(err, "Error scanning rows")
 		tempBoard = append(tempBoard, board)
 	}
 	CurrProject.Boards = tempBoard
@@ -217,15 +213,11 @@ func GetTasks(w http.ResponseWriter ,r *http.Request, projectID int) {
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
 	CurrProject := CurrentUser.Projects[projectID]
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error getting tasks")
 	for rows.Next(){
 		var task Task
 		err := rows.Scan(&task.ID, &task.BoardID, &task.ProjectID, &task.UserID, &task.Name, &task.Description, &task.Type)
-		if err != nil {
-			log.Println(err)
-		}
+		handleError(err, "Error scanning rows")
 		for i, board := range CurrProject.Boards{
 			if board.ID == task.BoardID{
 				CurrProject.Boards[i].Tasks = append(CurrProject.Boards[i].Tasks, task)
@@ -243,34 +235,20 @@ func DeleteProjectHandler(w http.ResponseWriter ,r *http.Request){
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
 	projectID, err := strconv.Atoi(r.FormValue("projectID"))
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting projectID to int")
 	// delete project from database
 	stmt, err := db.Prepare("DELETE FROM Project WHERE ProjectID=?")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	_, err = stmt.Exec(projectID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	stmt, err = db.Prepare("DELETE FROM Board WHERE ProjectID=?")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	_, err = stmt.Exec(projectID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	stmt, err = db.Prepare("DELETE FROM Task WHERE ProjectID=?")
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error preparing statement")
 	_, err = stmt.Exec(projectID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing statement")
 	// delete project from session
 	delete(CurrentUser.Projects, projectID)
 	session.Values["CurrentUser"] = CurrentUser
@@ -285,24 +263,17 @@ func DeleteProjectHandler(w http.ResponseWriter ,r *http.Request){
 		Projects: session.Values["CurrentUser"].(User).Projects,
 	}
 	err = tmpl.Execute(w, data)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error executing template")
 
 }
 
 func DeleteBoardHandler(w http.ResponseWriter ,r *http.Request){
-	log.Println("Deleting board...")
 	r.ParseForm()
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
 	projectID, err := strconv.Atoi(r.FormValue("projectID"))
-	log.Println("ProjectID: ", projectID)
-	if err != nil {
-		log.Println(err)
-	}
+	handleError(err, "Error converting projectID to int")
 	boardID, err := strconv.Atoi(r.FormValue("boardID"))
-	log.Println("BoardID: ", boardID)
 	handleError(err, "Error converting boardID to int")
 	// delete board from database
 	stmt, err := db.Prepare("DELETE FROM Board WHERE BoardID=? AND ProjectID=?")
@@ -341,7 +312,6 @@ func DeleteBoardHandler(w http.ResponseWriter ,r *http.Request){
 }
 
 func DeleteTaskHandler(w http.ResponseWriter ,r *http.Request){
-	log.Println("Deleting task...")
 	r.ParseForm()
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
@@ -370,7 +340,6 @@ func DeleteTaskHandler(w http.ResponseWriter ,r *http.Request){
 	CurrentUser.Projects[projectID] = project
 	session.Values["CurrentUser"] = CurrentUser
 	session.Save(r, w)
-	log.Println("Task deleted")
 	tmpl, _ := template.ParseFiles("../Client/html/project.html")
 	data := struct{
 		ProjectName string
@@ -388,7 +357,6 @@ func DeleteTaskHandler(w http.ResponseWriter ,r *http.Request){
 }
 
 func HandleDragEnd(w http.ResponseWriter ,r *http.Request){
-	log.Println("Handling drag end...")
 	r.ParseForm()
 	session, _ := store.Get(r, "session")
 	CurrentUser := session.Values["CurrentUser"].(User)
@@ -408,5 +376,4 @@ func HandleDragEnd(w http.ResponseWriter ,r *http.Request){
 	CurrentUser.Projects[projectID] = project
 	session.Values["CurrentUser"] = CurrentUser
 	session.Save(r, w)
-	log.Println("Task updated")
 }
