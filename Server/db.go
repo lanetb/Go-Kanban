@@ -24,4 +24,5 @@ func ConnectToDB(){
         log.Fatalf("failed to ping: %v", err)
     }
     log.Println("Successfully connected to PlanetScale!")
+	log.Println("Go to http://localhost:8080/ to view the app")
 }
