@@ -11,7 +11,6 @@ import (
 
 func RegistraitionAuthHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	log.Println(db)
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	email := r.FormValue("email")
@@ -55,15 +54,10 @@ func RegistraitionAuthHandler(w http.ResponseWriter, r *http.Request) {
 			if usernameValid && usernameLength{
 			    if passLower && passUpper  && passNumber && passSpecial && passLength && passNoSpace {
 					hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-					if err != nil {
-						log.Println(err)
-					}
+					handleError(err, "Error hashing password")
 					password = string(hashedPassword)
-					log.Println("hash: ", password)
 					_, err = db.Exec("INSERT INTO User (username, password, email) VALUES (?, ?, ?)", username, password, email)
-					if err != nil {
-						log.Println(err)
-					}
+					handleError(err, "Error inserting user")
 					log.Println("User created")
 					Login(username, password, w, r)
 				} else {
@@ -137,9 +131,7 @@ func Login(username string, password string, w http.ResponseWriter, r *http.Requ
 						Projects: currentUser.Projects,
 					}
 					err = tmpl.Execute(w, data)
-					if err != nil {
-						log.Println(err)
-					}
+					handleError(err, "Error executing template")
 				}
 		}
 	}

@@ -8,9 +8,10 @@ import (
 	"github.com/gorilla/context"
 	"github.com/gorilla/sessions"
 	"encoding/gob"
+	"os"
 )
 
-var store = sessions.NewCookieStore([]byte("secret-key"))
+var store = sessions.NewCookieStore([]byte(os.Getenv("SecretKey")))
 
 func main() {
 	log.Println("Application Started")
