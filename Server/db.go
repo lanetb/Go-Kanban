@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	
 )
@@ -16,7 +16,15 @@ func ConnectToDB(){
 
 	handleError(err, "Error loading .env file")
 
-    db, err = sql.Open("mysql", os.Getenv("DSN"))
+	cfg := mysql.Config{
+		User:                 os.Getenv("DB_USER"),
+		Passwd:               os.Getenv("DB_PASS"),
+		Net:                  "tcp",
+		Addr:                 os.Getenv("DB_HOST"),
+		DBName:               os.Getenv("DB_NAME"),
+	}
+
+    db, err = sql.Open("mysql", cfg.FormatDSN())
 
     handleError(err, "Error opening database")
 
